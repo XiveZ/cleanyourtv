@@ -67,4 +67,6 @@
     <string name="xs_addons_on">Look for add-on cards</string>
     <string name="xs_addons_hint">Add-ons are small apps that put a card on Home (weather, world clock, sleep timer…). Installed now: %1$d. They are built and installed from the computer, from the repo\'s addons folder.</string>
     <string name="xs_hide_grid">Hide the apps under the dock (Down shows them)</string>
+    <string name="follow_theme_confirm">Every choice made on this screen goes back to the theme: the dock, wallpaper timing, widgets and effects. The dock order stays.</string>
+    <string name="follow_theme_reset">Reset</string>
 </resources>

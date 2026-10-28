@@ -116,7 +116,11 @@ public final class LauncherSettingsActivity extends Activity {
             setResult(RESULT_OK, new Intent().putExtra(EXTRA_CARDS, true));
             finish();
         });
-        wallpaperChoice.setOnClickListener(v -> extraSettings.showGallery());
+        WallpaperGallery gallery = new WallpaperGallery(this, () -> {
+            changed();
+            refresh();
+        });
+        wallpaperChoice.setOnClickListener(v -> gallery.show());
         animationsChoice = findViewById(R.id.animationsChoice);
         animationsChoice.setOnClickListener(v -> {
             animations = !animations;
@@ -148,17 +152,14 @@ public final class LauncherSettingsActivity extends Activity {
         followThemeChoice = findViewById(R.id.followThemeChoice);
         followThemeChoice.setOnClickListener(v -> {
             if (!hasOnTvChoices()) return;
-            choices.edit().remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
-                    .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
-                    .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).remove(Config.TV_OVERRIDES_KEY).commit();
-            Config current = Config.load(this);
-            columns = current.columns;
-            rowsBelowDock = current.rowsBelowDock;
-            dockOpacity = current.dockOpacity;
-            animations = current.animations;
-            advancedEffects = current.animations && current.advancedEffects;
-            changed();
-            recreate();   // the extra rows show the theme's values again
+            // It undoes every choice made here at once (the dock, wallpaper timing, widgets): ask first.
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle(R.string.follow_theme)
+                    .setMessage(R.string.follow_theme_confirm)
+                    .setPositiveButton(R.string.follow_theme_reset, (d, which) -> followTheme())
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).requestFocus();
         });
         findViewById(R.id.defaultHomeChoice).setOnClickListener(v -> {
             // The system's Default home screen page is see-through on some TVs (Android 14's permission
@@ -183,6 +184,15 @@ public final class LauncherSettingsActivity extends Activity {
             content.setVisibility(View.VISIBLE);
             findViewById(R.id.defaultHomeChoice).requestFocus();   // hiding the rows dropped the focus
         }
+    }
+
+    /** Drops every on-TV choice; the screen is built again with the theme's values. */
+    private void followTheme() {
+        choices.edit().remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
+                .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
+                .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).remove(Config.TV_OVERRIDES_KEY).commit();
+        changed();
+        recreate();
     }
 
     private void reverseRow(TextView[] views) {
