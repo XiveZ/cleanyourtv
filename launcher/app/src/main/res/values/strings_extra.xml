@@ -79,14 +79,9 @@
     <string name="xs_net_speed_no_overlay">The add-on may not draw over other apps yet: allow it with adb (appops set local.tvhome.netspeed SYSTEM_ALERT_WINDOW allow).</string>
     <string name="greeting_hello">Hello</string>
     <string name="xs_astro">Sun, moon and meteor showers under the clock</string>
-    <string name="astro_sun">Sun: rises %1$s, sets %2$s · day %3$s</string>
-    <string name="astro_moon">Moon: %1$s, %2$d%% · rises %3$s, sets %4$s · %5$s %6$s</string>
-    <string name="astro_waxing">waxing</string>
-    <string name="astro_waning">waning</string>
     <string name="astro_full">full moon</string>
     <string name="astro_new">new moon</string>
     <string name="astro_hours">%1$d h %2$02d min</string>
-    <string name="astro_showers">Meteor showers: %1$s</string>
     <string name="astro_peak_today">%1$s (peak tonight)</string>
     <string name="astro_peak_on">%1$s (peak %2$s)</string>
     <string name="shower_quadrantids">Quadrantids</string>
@@ -158,4 +153,13 @@
     <string name="xs_widget_corner">Corner rounding</string>
     <string name="xs_widget_border">Border</string>
     <string name="xs_widget_border_opacity">Border opacity</string>
+    <string name="astro_day">day %1$s</string>
+    <string name="phase_new">New moon</string>
+    <string name="phase_waxing_crescent">Waxing crescent</string>
+    <string name="phase_first_quarter">First quarter</string>
+    <string name="phase_waxing_gibbous">Waxing</string>
+    <string name="phase_full">Full moon</string>
+    <string name="phase_waning_gibbous">Waning</string>
+    <string name="phase_last_quarter">Last quarter</string>
+    <string name="phase_waning_crescent">Waning crescent</string>
 </resources>

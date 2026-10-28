@@ -70,4 +70,21 @@ public class AstroTest {
         assertEquals("Quadrantids", Astro.showers(LocalDate.parse("2027-01-03")).get(0).key);
         assertTrue(Astro.showers(LocalDate.parse("2026-02-15")).isEmpty());
     }
+
+    private static Astro.Phase phaseOn(String date) {
+        Astro.Day d = Astro.day(LocalDate.parse(date), LAT, LON, MINSK);
+        return Astro.phase(d.illumination, d.waxing);
+    }
+
+    @Test
+    public void thePhaseIsNamedFromTheLitShareAndItsGrowth() {
+        assertEquals(Astro.Phase.NEW, phaseOn("2026-11-09"));
+        assertEquals(Astro.Phase.WAXING_CRESCENT, phaseOn("2026-11-12"));
+        assertEquals(Astro.Phase.WAXING_GIBBOUS, phaseOn("2026-11-20"));
+        assertEquals(Astro.Phase.FULL, phaseOn("2026-11-24"));
+        assertEquals(Astro.Phase.WANING_GIBBOUS, phaseOn("2026-11-28"));
+        assertEquals(Astro.Phase.WANING_CRESCENT, phaseOn("2026-12-06"));
+        assertEquals(Astro.Phase.FIRST_QUARTER, Astro.phase(0.5, true));
+        assertEquals(Astro.Phase.LAST_QUARTER, Astro.phase(0.5, false));
+    }
 }

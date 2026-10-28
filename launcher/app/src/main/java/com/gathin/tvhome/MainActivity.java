@@ -2708,7 +2708,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private void updateGreeting() {
         maybeCelebrate();
-        if (astro.getVisibility() == View.VISIBLE) astro.setText(astroLine.text(getResources()));
+        if (astro.getVisibility() == View.VISIBLE) astro.setText(astroLine.text(this));
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int res;
         // Locale-specific day parts (app language on Android 13+).

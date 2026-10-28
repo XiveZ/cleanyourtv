@@ -26,6 +26,17 @@ final class Astro {
         boolean nextIsFull;
     }
 
+    enum Phase { NEW, WAXING_CRESCENT, FIRST_QUARTER, WAXING_GIBBOUS, FULL, WANING_GIBBOUS, LAST_QUARTER, WANING_CRESCENT }
+
+    /** The phase's name from the lit share (0..1) and whether it grows: new under 3%, quarter 40-60%, full over 97%. */
+    static Phase phase(double lit, boolean waxing) {
+        if (lit < 0.03) return Phase.NEW;
+        if (lit > 0.97) return Phase.FULL;
+        if (lit >= 0.4 && lit <= 0.6) return waxing ? Phase.FIRST_QUARTER : Phase.LAST_QUARTER;
+        if (lit < 0.4) return waxing ? Phase.WAXING_CRESCENT : Phase.WANING_CRESCENT;
+        return waxing ? Phase.WAXING_GIBBOUS : Phase.WANING_GIBBOUS;
+    }
+
     static Day day(LocalDate date, double lat, double lon, ZoneId zone) {
         Day d = new Day();
         int[] sun = Sun.riseAndSet(date, lat, lon, zone);

@@ -226,14 +226,9 @@
     <string name="xs_net_speed_no_overlay">Аддону яшчэ не дазволена маляваць паверх праграм: дазвольце праз adb (appops set local.tvhome.netspeed SYSTEM_ALERT_WINDOW allow).</string>
     <string name="greeting_hello">Прывітанне</string>
     <string name="xs_astro">Сонца, Месяц і зорапады пад гадзіннікам</string>
-    <string name="astro_sun">Сонца: усход %1$s, заход %2$s · дзень %3$s</string>
-    <string name="astro_moon">Месяц: %1$s, %2$d%% · усход %3$s, заход %4$s · %5$s %6$s</string>
-    <string name="astro_waxing">расце</string>
-    <string name="astro_waning">спадае</string>
     <string name="astro_full">поўня</string>
     <string name="astro_new">маладзік</string>
     <string name="astro_hours">%1$d г %2$02d хв</string>
-    <string name="astro_showers">Зорапад: %1$s</string>
     <string name="astro_peak_today">%1$s (пік сёння ўначы)</string>
     <string name="astro_peak_on">%1$s (пік %2$s)</string>
     <string name="shower_quadrantids">Квадрантыды</string>
@@ -309,4 +304,13 @@
     <string name="xs_widget_corner">Закругленне вуглоў</string>
     <string name="xs_widget_border">Абводка</string>
     <string name="xs_widget_border_opacity">Непразрыстасць абводкі</string>
+    <string name="astro_day">дзень %1$s</string>
+    <string name="phase_new">Маладзік</string>
+    <string name="phase_waxing_crescent">Малады месяц</string>
+    <string name="phase_first_quarter">Першая чвэрць</string>
+    <string name="phase_waxing_gibbous">Расце</string>
+    <string name="phase_full">Поўня</string>
+    <string name="phase_waning_gibbous">Спадае</string>
+    <string name="phase_last_quarter">Апошняя чвэрць</string>
+    <string name="phase_waning_crescent">Стары месяц</string>
 </resources>

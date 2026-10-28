@@ -1,6 +1,9 @@
 package com.gathin.tvhome;
 
+import android.content.Context;
 import android.content.res.Resources;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -17,7 +20,7 @@ final class AstroLine {
     private final double lat, lon;
     private final boolean placed;
     private LocalDate made;
-    private String text = "";
+    private CharSequence text = "";
     private int[] sun;
 
     AstroLine(Resources res) {
@@ -43,32 +46,45 @@ final class AstroLine {
         return sun;
     }
 
-    /** The lines for today; recalculated only when the date changed. */
-    String text(Resources res) {
-        refresh(res);
+    /** The lines for today, with icons; recalculated only when the date changed. */
+    CharSequence text(Context ctx) {
+        refresh(ctx);
         return text;
     }
 
-    private void refresh(Resources res) {
+    private void refresh(Context ctx) {
         LocalDate today = LocalDate.now();
-        if (!placed || (today.equals(made) && (res == null || !text.isEmpty()))) return;
+        if (!placed || (today.equals(made) && (ctx == null || text.length() > 0))) return;
         Astro.Day d = Astro.day(today, lat, lon, ZoneId.systemDefault());
         sun = d.sunRise >= 0 && d.sunSet >= 0 ? new int[]{d.sunRise, d.sunSet} : null;
         made = today;
-        if (res != null) text = lines(res, d, today);
+        if (ctx != null) text = lines(ctx, d, today);
     }
 
-    private static String lines(Resources res, Astro.Day d, LocalDate today) {
+    private static CharSequence lines(Context ctx, Astro.Day d, LocalDate today) {
+        android.content.res.Resources res = ctx.getResources();
         DateTimeFormatter dm = DateTimeFormatter.ofPattern("dd.MM", Locale.ROOT);
-        StringBuilder sb = new StringBuilder();
-        String length = d.sunRise >= 0 && d.sunSet >= 0
-                ? res.getString(R.string.astro_hours, (d.sunSet - d.sunRise) / 60, (d.sunSet - d.sunRise) % 60) : "—";
-        sb.append(res.getString(R.string.astro_sun, time(d.sunRise), time(d.sunSet), length));
-        String next = d.nextPhaseDate == null ? "" : d.nextPhaseDate.format(dm);
-        sb.append('\n').append(res.getString(R.string.astro_moon,
-                res.getString(d.waxing ? R.string.astro_waxing : R.string.astro_waning),
-                Math.round(d.illumination * 100), time(d.moonRise), time(d.moonSet),
-                res.getString(d.nextIsFull ? R.string.astro_full : R.string.astro_new), next));
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        icon(sb, ctx.getDrawable(R.drawable.ic_astro_sunrise));
+        sb.append(time(d.sunRise)).append("    ");
+        icon(sb, ctx.getDrawable(R.drawable.ic_astro_sunset));
+        sb.append(time(d.sunSet));
+        if (d.sunRise >= 0 && d.sunSet >= 0) {
+            sb.append("   \u00B7 ").append(res.getString(R.string.astro_day,
+                    res.getString(R.string.astro_hours, (d.sunSet - d.sunRise) / 60, (d.sunSet - d.sunRise) % 60)));
+        }
+        sb.append('\n');
+        icon(sb, new MoonPhaseDrawable(d.illumination, d.waxing));
+        sb.append(res.getString(phaseName(Astro.phase(d.illumination, d.waxing)))).append(", ")
+                .append(String.valueOf(Math.round(d.illumination * 100))).append("%    ");
+        icon(sb, ctx.getDrawable(R.drawable.ic_astro_moonrise));
+        sb.append(time(d.moonRise)).append("    ");
+        icon(sb, ctx.getDrawable(R.drawable.ic_astro_moonset));
+        sb.append(time(d.moonSet));
+        if (d.nextPhaseDate != null) {
+            sb.append("   \u00B7 ").append(res.getString(d.nextIsFull ? R.string.astro_full : R.string.astro_new))
+                    .append(' ').append(d.nextPhaseDate.format(dm));
+        }
         List<String> names = new ArrayList<>();
         for (Astro.Shower s : Astro.showers(today)) {
             String name = res.getString(name(s.key));
@@ -76,8 +92,33 @@ final class AstroLine {
                     : res.getString(R.string.astro_peak_on, name, s.peak.atYear(today.getYear()).format(dm)));
             if (names.size() == 2) break;
         }
-        if (!names.isEmpty()) sb.append('\n').append(res.getString(R.string.astro_showers, String.join(", ", names)));
-        return sb.toString();
+        if (!names.isEmpty()) {
+            sb.append('\n');
+            icon(sb, ctx.getDrawable(R.drawable.ic_astro_meteor));
+            sb.append(String.join(", ", names));
+        }
+        return sb;
+    }
+
+    /** An icon and a space before the value it marks. */
+    private static void icon(SpannableStringBuilder sb, android.graphics.drawable.Drawable d) {
+        int at = sb.length();
+        sb.append('\uFFFC');
+        sb.setSpan(new IconSpan(d), at, at + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        sb.append(' ');
+    }
+
+    private static int phaseName(Astro.Phase p) {
+        switch (p) {
+            case NEW: return R.string.phase_new;
+            case WAXING_CRESCENT: return R.string.phase_waxing_crescent;
+            case FIRST_QUARTER: return R.string.phase_first_quarter;
+            case WAXING_GIBBOUS: return R.string.phase_waxing_gibbous;
+            case FULL: return R.string.phase_full;
+            case WANING_GIBBOUS: return R.string.phase_waning_gibbous;
+            case LAST_QUARTER: return R.string.phase_last_quarter;
+            default: return R.string.phase_waning_crescent;
+        }
     }
 
     private static String time(int minute) {
