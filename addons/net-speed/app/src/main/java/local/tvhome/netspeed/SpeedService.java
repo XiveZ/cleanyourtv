@@ -42,7 +42,7 @@ public final class SpeedService extends Service {
             rx = nowRx;
             tx = nowTx;
             at = now;
-            line.setText("↓ " + Rate.format(down, bits) + "   ↑ " + Rate.format(up, bits));
+            line.setText("↓ " + Rate.fixed(down, bits) + "  ↑ " + Rate.fixed(up, bits));
             handler.postDelayed(this, intervalMs);
         }
     };
@@ -83,13 +83,14 @@ public final class SpeedService extends Service {
         line = new TextView(this);
         line.setTextColor(0xFFFFFFFF);
         line.setTextSize(13);
-        line.setFontFeatureSettings("tnum");   // digits keep their width, the line does not jitter
+        // Monospace with Rate.fixed's constant length: the line keeps one width, only digits and units change.
+        line.setTypeface(android.graphics.Typeface.MONOSPACE);
         line.setPadding(Math.round(8 * d), Math.round(3 * d), Math.round(8 * d), Math.round(3 * d));
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(0x99000000);
         bg.setCornerRadius(6 * d);
         line.setBackground(bg);
-        line.setText("↓ 0 B/s   ↑ 0 B/s");
+        line.setText("↓ " + Rate.fixed(0, false) + "  ↑ " + Rate.fixed(0, false));
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,

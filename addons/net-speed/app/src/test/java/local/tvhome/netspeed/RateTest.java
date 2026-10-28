@@ -36,4 +36,22 @@ public class RateTest {
         assertEquals(100, Rate.INTERVALS_MS[0]);
         assertEquals(10_000, Rate.INTERVALS_MS[Rate.INTERVALS_MS.length - 1]);
     }
+
+    @Test
+    public void theFixedLabelKeepsOneLengthWhateverTheSpeed() {
+        long[] samples = {0, 9, 512, 1023, 1536, 10 * 1024, 999 * 1024, 1023 * 1024, 5L << 20, 100L << 20, 3L << 30};
+        int length = Rate.fixed(0, false).length();
+        for (long v : samples) {
+            assertEquals("bytes " + v, length, Rate.fixed(v, false).length());
+            assertEquals("bits " + v, length, Rate.fixed(v, true).length());
+        }
+    }
+
+    @Test
+    public void theFixedLabelPadsTheNumberOnTheLeftAndTheUnitOnTheRight() {
+        assertEquals("   0 B/s ", Rate.fixed(0, false));
+        assertEquals(" 1.5 KB/s", Rate.fixed(1536, false));
+        assertEquals("1023 B/s ", Rate.fixed(1023, false));
+        assertEquals("  80 Mb/s", Rate.fixed(10_000_000, true));
+    }
 }
