@@ -1,0 +1,27 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <!-- The speed line is drawn over whatever is on screen. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Put the line back after a restart of the TV. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Only apps signed with the same key (the launcher built from this repo) may change the settings. -->
+    <permission android:name="local.tvhome.netspeed.CONTROL" android:protectionLevel="signature" />
+
+    <application android:allowBackup="false" android:label="@string/app_name" android:icon="@drawable/icon">
+        <service android:name=".SpeedService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Shows the network speed in a corner over other apps, as the user asked" />
+        </service>
+        <receiver android:name=".BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+        <provider android:name=".ControlProvider" android:authorities="local.tvhome.netspeed.control"
+            android:exported="true" android:permission="local.tvhome.netspeed.CONTROL" />
+    </application>
+</manifest>

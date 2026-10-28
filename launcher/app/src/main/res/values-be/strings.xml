@@ -216,4 +216,12 @@
     <string name="xs_hide_grid">Хаваць праграмы пад панэллю («Уніз» паказвае)</string>
     <string name="follow_theme_confirm">Усе налады, зробленыя на гэтым экране, вернуцца да тэмы: панэль, змена шпалер, віджэты і эфекты. Парадак праграм застанецца.</string>
     <string name="follow_theme_reset">Скінуць</string>
+    <string name="xs_section_net_speed">Хуткасць сеткі</string>
+    <string name="xs_net_speed_on">Хуткасць у куце, паверх усіх праграм</string>
+    <string name="xs_net_speed_every">Абнаўляць кожныя</string>
+    <string name="xs_net_speed_units">Адзінкі</string>
+    <string name="xs_units_bytes">байты (B/s, KB/s, MB/s)</string>
+    <string name="xs_units_bits">біты (b/s, Kb/s, Mb/s)</string>
+    <string name="xs_seconds_decimal">%1$.1f с</string>
+    <string name="xs_net_speed_no_overlay">Аддону яшчэ не дазволена маляваць паверх праграм: дазвольце праз adb (appops set local.tvhome.netspeed SYSTEM_ALERT_WINDOW allow).</string>
 </resources>

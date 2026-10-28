@@ -69,4 +69,12 @@
     <string name="xs_hide_grid">Hide the apps under the dock (Down shows them)</string>
     <string name="follow_theme_confirm">Every choice made on this screen goes back to the theme: the dock, wallpaper timing, widgets and effects. The dock order stays.</string>
     <string name="follow_theme_reset">Reset</string>
+    <string name="xs_section_net_speed">Network speed</string>
+    <string name="xs_net_speed_on">Speed in the corner, over every app</string>
+    <string name="xs_net_speed_every">Update every</string>
+    <string name="xs_net_speed_units">Units</string>
+    <string name="xs_units_bytes">bytes (B/s, KB/s, MB/s)</string>
+    <string name="xs_units_bits">bits (b/s, Kb/s, Mb/s)</string>
+    <string name="xs_seconds_decimal">%1$.1f s</string>
+    <string name="xs_net_speed_no_overlay">The add-on may not draw over other apps yet: allow it with adb (appops set local.tvhome.netspeed SYSTEM_ALERT_WINDOW allow).</string>
 </resources>

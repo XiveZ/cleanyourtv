@@ -98,12 +98,30 @@ final class ExtraSettings {
                         : Config.GLASS_HALO.equals(v) ? R.string.xs_glass_halo : R.string.xs_glass_glass));
         bool("launcher_settings_button", R.string.xs_gear_opens_launcher, c.launcherSettingsButton);
 
+        netSpeed();
+
         section(R.string.xs_section_addons);
         int installed = activity.getPackageManager().queryIntentActivities(new android.content.Intent(
                 android.content.Intent.ACTION_MAIN).addCategory("com.gathin.tvhome.category.DOCK_CARD"), 0).size();
         action(R.string.xs_addons_manage, openCards);
         bool("module_cards", R.string.xs_addons_on, c.moduleCards);
         hint(activity.getString(R.string.xs_addons_hint, installed));
+    }
+
+    /** Network speed add-on: the line in the bottom right corner over every app. Only when it is installed. */
+    private void netSpeed() {
+        android.os.Bundle state = NetSpeedLink.get(activity);
+        if (state == null) return;
+        Saver toAddOn = (key, value) -> NetSpeedLink.set(activity, key, value);
+        section(R.string.xs_section_net_speed);
+        option("on", R.string.xs_net_speed_on, state.getBoolean("on"), new Object[]{true, false},
+                v -> text((Boolean) v ? R.string.on : R.string.off), toAddOn);
+        option("interval_ms", R.string.xs_net_speed_every, state.getInt("interval_ms"),
+                new Object[]{100, 200, 500, 1000, 2000, 5000, 10_000},
+                v -> activity.getString(R.string.xs_seconds_decimal, (Integer) v / 1000f), toAddOn);
+        option("bits", R.string.xs_net_speed_units, state.getBoolean("bits"), new Object[]{false, true},
+                v -> text((Boolean) v ? R.string.xs_units_bits : R.string.xs_units_bytes), toAddOn);
+        if (!state.getBoolean("overlay")) hint(R.string.xs_net_speed_no_overlay);
     }
 
     // ---- rows ------------------------------------------------------------------------------------
@@ -165,11 +183,24 @@ final class ExtraSettings {
         row.setOnClickListener(v -> run.run());
     }
 
+    /** Where a row's choice is saved: an on-TV theme choice by default (Config.TV_OVERRIDES_KEY). */
+    private interface Saver {
+        void save(String key, Object value);
+    }
+
+    private void themeChoice(String key, Object value) {
+        Config.putTvOverride(activity, key, value);
+    }
+
     private void bool(String key, int title, boolean current) {
         option(key, title, current, new Object[]{true, false}, v -> text((Boolean) v ? R.string.on : R.string.off));
     }
 
     private void option(String key, int title, Object current, Object[] values, Label label) {
+        option(key, title, current, values, label, this::themeChoice);
+    }
+
+    private void option(String key, int title, Object current, Object[] values, Label label, Saver saver) {
         TextView row = row();
         int[] at = {indexOf(values, current)};
         String name = text(title);
@@ -178,7 +209,7 @@ final class ExtraSettings {
         show.run();
         java.util.function.IntConsumer step = by -> {
             at[0] = at[0] < 0 ? 0 : (at[0] + by + values.length) % values.length;
-            Config.putTvOverride(activity, key, values[at[0]]);
+            saver.save(key, values[at[0]]);
             changed.run();
             show.run();
         };
