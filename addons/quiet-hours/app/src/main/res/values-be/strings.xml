@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ціхія гадзіны</string>
+    <string name="channel_name">Абмежаванне гучнасці</string>
+    <string name="notification_text">Гучнасць не перавышае мяжу. Каб змяніць яе, адкрыйце «Ціхія гадзіны».</string>
+</resources>

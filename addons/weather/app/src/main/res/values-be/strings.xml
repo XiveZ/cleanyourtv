@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Надвор\'е</string>
+
+    <string name="feels_like">Адчуваецца як %1$d°</string>
+    <string name="humidity">Вільготнасць %1$d%%</string>
+    <string name="wind">Вецер %1$d км/г</string>
+    <string name="wind_mph">Вецер %1$d міль/г</string>
+    <string name="other_unit_c">%1$d°C</string>
+    <string name="other_unit_f">%1$d°F</string>
+    <string name="high_low">%1$d° / %2$d°</string>
+    <string name="aqi_line">Якасць паветра %1$d · %2$s</string>
+    <string name="updated">Абноўлена %1$s · Open-Meteo</string>
+    <string name="change_city">Змяніць горад</string>
+    <string name="loading">Загружаем надвор\'е…</string>
+    <string name="offline">Няма сувязі з Open-Meteo. Праверце падключэнне тэлевізара да інтэрнэту; новая спроба праз 5 хвілін.</string>
+
+    <string name="pick_title">Які горад?</string>
+    <string name="pick_hint">Назва горада, напрыклад Мінск</string>
+    <string name="pick_search">Шукаць</string>
+    <string name="pick_none">Месца «%1$s» не знойдзена</string>
+    <string name="pick_first">Выберыце горад, каб убачыць надвор\'е.</string>
+
+    <string name="aqi_good">Добрая</string>
+    <string name="aqi_moderate">Умераная</string>
+    <string name="aqi_sensitive">Шкодная для адчувальных людзей</string>
+    <string name="aqi_unhealthy">Шкодная</string>
+    <string name="aqi_very_unhealthy">Вельмі шкодная</string>
+    <string name="aqi_hazardous">Небяспечная</string>
+
+    <string name="sky_clear">Ясна</string>
+    <string name="sky_sunny">Сонечна</string>
+    <string name="sky_mostly_clear">Пераважна ясна</string>
+    <string name="sky_mostly_sunny">Пераважна сонечна</string>
+    <string name="sky_partly_cloudy">Пераменная воблачнасць</string>
+    <string name="sky_cloudy">Воблачна</string>
+    <string name="sky_fog">Туман</string>
+    <string name="sky_drizzle">Імжа</string>
+    <string name="sky_freezing_drizzle">Ледзяная імжа</string>
+    <string name="sky_light_rain">Невялікі дождж</string>
+    <string name="sky_rain">Дождж</string>
+    <string name="sky_heavy_rain">Моцны дождж</string>
+    <string name="sky_freezing_rain">Ледзяны дождж</string>
+    <string name="sky_light_snow">Невялікі снег</string>
+    <string name="sky_snow">Снег</string>
+    <string name="sky_heavy_snow">Моцны снег</string>
+    <string name="sky_snow_grains">Снежныя крупы</string>
+    <string name="sky_showers">Ліўні</string>
+    <string name="sky_snow_showers">Снегапад</string>
+    <string name="sky_thunderstorm">Навальніца</string>
+</resources>

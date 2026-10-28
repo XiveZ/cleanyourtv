@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Рэсурсы прылады</string>
+    <string name="loading">Чытаем лічыльнікі…</string>
+    <string name="unavailable">Паказанні недаступныя</string>
+    <string name="back">Назад</string>
+    <string name="memory">Вольная RAM: %1$s</string>
+    <string name="memory_used">Занятая RAM: %1$s</string>
+    <string name="storage">Вольнае сховішча: %1$s</string>
+    <string name="note">Вольная RAM уключае кэшы, якія можна вызваліць; занятая RAM — гэта ўся памяць мінус вольная. Сховішча — гэта файлавая сістэма data.</string>
+</resources>

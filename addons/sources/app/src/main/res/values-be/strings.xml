@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Крыніцы</string>
+    <string name="state_nothing">нічога не падключана</string>
+    <string name="state_standby">падключана, у рэжыме чакання</string>
+    <string name="state_connected">падключана</string>
+    <string name="live_tv">Тэлеэфір</string>
+    <string name="live_tv_detail">Антэнны або кабельны цюнер тэлевізара.</string>
+    <string name="no_sources">Няма крыніц</string>
+    <string name="no_sources_detail">Гэты тэлевізар не паведамляе пра ўваходы HDMI або цюнер.</string>
+    <string name="cant_open">У гэтым тэлевізары няма праграмы, якая адкрывае гэту крыніцу.</string>
+    <plurals name="devices_connected">
+        <item quantity="one">Падключана %1$d прылада.</item>
+        <item quantity="few">Падключаны %1$d прылады.</item>
+        <item quantity="many">Падключана %1$d прылад.</item>
+        <item quantity="other">Падключана %1$d прылады.</item>
+    </plurals>
+</resources>

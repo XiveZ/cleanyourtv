@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Таймер сну</string>
+    <string name="hint">Выберыце, калі тэлевізар пяройдзе ў рэжым чакання. Папярэджанне з\'явіцца за хвіліну да гэтага.</string>
+    <string name="in_minutes">%1$d хв</string>
+    <string name="cancel">Скасаваць таймер</string>
+    <string name="state_off">Таймер не ўсталяваны.</string>
+    <string name="state_on">Рэжым чакання ў %1$s.</string>
+    <string name="no_service">Служба спецыяльных магчымасцей «Таймер сну» выключана (запусціце скрыпт усталявання).</string>
+    <string name="warning_title">Тэлевізар выключаецца</string>
+    <string name="warning_seconds">праз %1$d с</string>
+    <string name="more">Яшчэ 15 хвілін</string>
+    <string name="now">Выключыць зараз</string>
+    <string name="service_label">Таймер сну</string>
+    <string name="quick_hint">◀ ▶ выбар часу · OK закрыць</string>
+    <string name="service_description">Толькі пераводзіць тэлевізар у рэжым чакання, калі скончыцца таймер сну. Змесціва экрана не чытае.</string>
+</resources>

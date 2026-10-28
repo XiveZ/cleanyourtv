@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Навушнікі</string>
+    <string name="plays_through">Гук цяпер ідзе праз: %1$s</string>
+    <string name="output_speakers">дынамікі тэлевізара</string>
+    <string name="output_fixed">аўдыявыхад тэлевізара (HDMI ARC або аптычны)</string>
+    <string name="allow_title">Дазволіць доступ да Bluetooth</string>
+    <string name="allow_detail">Каб паказаць вашы навушнікі і заўважыць, калі яны адключацца. OK — запытаць.</string>
+    <string name="not_allowed">Не дазволена</string>
+    <string name="pair_title">Спалучыць або падключыць навушнікі</string>
+    <string name="pair_detail">Адкрывае налады Bluetooth тэлевізара. Спачатку ўключыце на навушніках рэжым спалучэння.</string>
+    <string name="guard_title">Цішыня, калі яны адключыліся</string>
+    <string name="guard_detail">Калі навушнікі адключаюцца, ставіць прайграванне на паўзу і выключае гук дынамікаў, каб ён не загучаў на ўвесь пакой. Калі яны вяртаюцца, гук уключаецца зноў.</string>
+    <string name="guard_detail_fixed">Калі навушнікі адключаюцца, ставіць прайграванне на паўзу. Гучнасць гэтага тэлевізара фіксаваная (ARC або ўзмацняльнік), таму выключыць гук дынамікаў нельга.</string>
+    <string name="on">Укл.</string>
+    <string name="off">Выкл.</string>
+    <string name="unmute_title">Уключыць гук дынамікаў</string>
+    <string name="unmute_detail">Гук выключаны, калі адключыліся навушнікі.</string>
+    <string name="muted">Гук выключаны</string>
+    <string name="heading_paired">Спалучаныя навушнікі і калонкі</string>
+    <string name="no_bluetooth">У гэтым тэлевізары няма Bluetooth</string>
+    <string name="bluetooth_off">Bluetooth выключаны</string>
+    <string name="bluetooth_off_detail">Уключыце яго ў наладах тэлевізара.</string>
+    <string name="none_yet">Пакуль няма</string>
+    <string name="none_yet_detail">Каб спалучыць, скарыстайцеся радком вышэй.</string>
+    <string name="connected">Падключана</string>
+    <string name="connected_battery">Падключана, батарэя %1$s</string>
+    <string name="not_connected_detail">Не падключана. OK адкрые налады Bluetooth для падключэння.</string>
+    <string name="unnamed">Прылада без назвы</string>
+    <string name="heading_several">Некалькі навушнікаў адначасова</string>
+    <string name="sharing_one_pair">Гэты тэлевізар перадае гук толькі на адны Bluetooth-навушнікі за раз. Для дваіх выкарыстоўвайце двухканальны Bluetooth-перадатчык на выхадзе для навушнікаў або аптычным выхадзе тэлевізара.</string>
+    <string name="sharing_auracast">Гэты тэлевізар можа транслюваць гук адразу на многа навушнікаў LE Audio (Auracast): пачніце трансляцыю ў наладах Bluetooth тэлевізара.</string>
+    <string name="sharing_no_broadcast">Гэты тэлевізар перадае гук толькі на адны Bluetooth-навушнікі за раз; трансляцыі LE Audio ў яго няма. Для дваіх выкарыстоўвайце двухканальны Bluetooth-перадатчык на выхадзе для навушнікаў або аптычным выхадзе тэлевізара.</string>
+</resources>
