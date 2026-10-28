@@ -16,6 +16,24 @@ import java.util.Map;
 final class HeaderWidgets {
     private HeaderWidgets() { }
 
+    /** One widget's backdrop from the widget_backdrop_* choices: colour and opacity, a fade, corners, a border. */
+    static GradientDrawable backdrop(Config cfg, float d) {
+        int color = Backdrop.argb(cfg.widgetBackdropColor, cfg.widgetBackdropOpacity);
+        GradientDrawable pill = new GradientDrawable();
+        if ("vertical".equals(cfg.widgetBackdropGradient) || "horizontal".equals(cfg.widgetBackdropGradient)) {
+            pill.setOrientation("vertical".equals(cfg.widgetBackdropGradient)
+                    ? GradientDrawable.Orientation.TOP_BOTTOM : GradientDrawable.Orientation.LEFT_RIGHT);
+            pill.setColors(new int[]{color, Backdrop.argb(cfg.widgetBackdropColor, cfg.widgetBackdropOpacity / 5)});
+        } else {
+            pill.setColor(color);
+        }
+        pill.setCornerRadius(cfg.widgetCorner * d);
+        if (cfg.widgetBorder > 0) {
+            pill.setStroke(Math.round(cfg.widgetBorder * d), Backdrop.argb("#FFFFFF", cfg.widgetBorderOpacity));
+        }
+        return pill;
+    }
+
     static void arrange(LinearLayout left, LinearLayout right, Map<String, View> widgets, Config cfg) {
         float d = left.getResources().getDisplayMetrics().density;
         int gap = Math.round(cfg.widgetGap * d);
@@ -32,10 +50,7 @@ final class HeaderWidgets {
                 ((TextView) v).setLineSpacing(Math.max(2, gap / 3f), 1f);
             }
             if (cfg.widgetBackdrop) {
-                GradientDrawable pill = new GradientDrawable();
-                pill.setColor(0x80000000);
-                pill.setCornerRadius(12 * d);
-                v.setBackground(pill);
+                v.setBackground(backdrop(cfg, d));
                 v.setPadding(Math.round(12 * d), Math.round(6 * d), Math.round(12 * d), Math.round(6 * d));
             }
             (place.right ? right : left).addView(v, lp);

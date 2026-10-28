@@ -289,4 +289,24 @@
     <string name="xs_preset_theme">Як у тэме</string>
     <string name="xs_preset_claude">Claude</string>
     <string name="xs_preset_hint">Claude: цёплы вугальны колер і гліна, уласныя намаляваныя шпалеры, шкло з абводкай, цёмныя падкладкі пад віджэтамі. Зроблена Claude Code разам з уладальнікам гэтага тэлевізара 28 кастрычніка 2026. Пры вяртанні аднаўляецца дакладна тое, што было зададзена раней.</string>
+    <string name="xs_celebration_preview">Прагляд святкавання Новага года…</string>
+    <string name="celebration_preview_hint">«Управа»: +30 с · «Улева»: −30 с · «Назад»: выйсці</string>
+    <string name="xs_backdrop_color">Колер фону</string>
+    <string-array name="xs_backdrop_colors">
+        <item>Чорны</item>
+        <item>Вугальны</item>
+        <item>Начное неба</item>
+        <item>Шэра-сіні</item>
+        <item>Фіялетавы</item>
+        <item>Гліна</item>
+        <item>Белы</item>
+    </string-array>
+    <string name="xs_backdrop_opacity">Цемната фону (непразрыстасць)</string>
+    <string name="xs_backdrop_gradient">Градыент фону</string>
+    <string name="xs_gradient_none">Роўны</string>
+    <string name="xs_gradient_vertical">Зверху ўніз</string>
+    <string name="xs_gradient_horizontal">Злева ўправа</string>
+    <string name="xs_widget_corner">Закругленне вуглоў</string>
+    <string name="xs_widget_border">Абводка</string>
+    <string name="xs_widget_border_opacity">Непразрыстасць абводкі</string>
 </resources>

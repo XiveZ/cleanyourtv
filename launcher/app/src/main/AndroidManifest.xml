@@ -105,6 +105,12 @@
             </intent-filter>
         </activity>
 
+        <!-- Local: preview of the five-minute New Year celebration (Launcher settings, Widgets). -->
+        <activity
+            android:name=".CelebrationActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
         <activity
             android:name=".LauncherSettingsActivity"
             android:exported="false"

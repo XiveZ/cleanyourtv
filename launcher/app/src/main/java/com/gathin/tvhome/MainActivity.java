@@ -538,6 +538,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         java.util.Map<String, View> headerWidgets = new java.util.HashMap<>();
         headerWidgets.put("astro", astro);
         headerWidgets.put("stats", stats);
+        celebrate = cfg.showNewYear;
+        celebrationTarget = cfg.newYearTarget;
         if (cfg.showNewYear) headerWidgets.put("newyear", new NewYearView(this, cfg.animations && !cfg.reducedMotion,
                 cfg.newYearStyle, cfg.newYearTarget, cfg.newYearText));
         HeaderWidgets.arrange(findViewById(R.id.widgetsLeft), findViewById(R.id.widgetsRight), headerWidgets, cfg);
@@ -2660,6 +2662,24 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Local: the sky for config.xml's place (show_astro lines, and the Belarusian greeting by the sun). */
     private AstroLine astroLine;
     private TextView astro;
+    /** show_new_year: the five minutes of Kaliady on Home when the countdown reaches its day (Celebration). */
+    private boolean celebrate;
+    private String celebrationTarget = "new_year";
+    private CelebrationView celebration;
+
+    private void maybeCelebrate() {
+        if (!celebrate || celebration != null) return;
+        double s = Celebration.secondsIn(java.time.LocalDateTime.now(), NewYear.target(celebrationTarget));
+        if (s < 0) return;
+        boolean xmas = !"new_year".equals(celebrationTarget);
+        celebration = new CelebrationView(this, getString(xmas ? R.string.new_year_happy_xmas : R.string.new_year_happy),
+                s, () -> {
+                    root.removeView(celebration);
+                    celebration = null;
+                });
+        root.addView(celebration, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+    }
 
     /** Belarusian: the greeting follows the sun at the TV's place (Greeting), never "good night". */
     private int sunGreeting() {
@@ -2675,6 +2695,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void updateGreeting() {
+        maybeCelebrate();
         if (astro.getVisibility() == View.VISIBLE) astro.setText(astroLine.text(getResources()));
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int res;

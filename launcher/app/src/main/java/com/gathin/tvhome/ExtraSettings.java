@@ -100,11 +100,25 @@ final class ExtraSettings {
         option("new_year_target", R.string.xs_new_year_target, c.newYearTarget, NewYear.TARGETS, v -> text(
                 "christmas".equals(v) ? R.string.xs_target_christmas
                         : "orthodox_christmas".equals(v) ? R.string.xs_target_orthodox : R.string.xs_target_new_year));
+        action(R.string.xs_celebration_preview, () -> activity.startActivity(
+                new android.content.Intent(activity, CelebrationActivity.class)));
         option("new_year_text", R.string.xs_new_year_text, c.newYearText, new Object[]{"short", "long", "soon"}, v -> text(
                 "long".equals(v) ? R.string.new_year_title_long : "soon".equals(v) ? R.string.new_year_title_soon
                         : R.string.new_year_until));
         option("widget_gap", R.string.xs_widget_gap, c.widgetGap, new Object[]{0, 4, 8, 12, 16, 24, 32}, v -> v + " dp");
         bool("widget_backdrop", R.string.xs_widget_backdrop, c.widgetBackdrop);
+        option("widget_backdrop_color", R.string.xs_backdrop_color, c.widgetBackdropColor, Backdrop.COLORS,
+                v -> activity.getResources().getStringArray(R.array.xs_backdrop_colors)[java.util.Arrays.asList(Backdrop.COLORS).indexOf(v)]);
+        option("widget_backdrop_opacity", R.string.xs_backdrop_opacity, c.widgetBackdropOpacity,
+                new Object[]{0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100}, v -> v + "%");
+        option("widget_backdrop_gradient", R.string.xs_backdrop_gradient, c.widgetBackdropGradient,
+                new Object[]{"none", "vertical", "horizontal"}, v -> text("vertical".equals(v) ? R.string.xs_gradient_vertical
+                        : "horizontal".equals(v) ? R.string.xs_gradient_horizontal : R.string.xs_gradient_none));
+        option("widget_corner", R.string.xs_widget_corner, c.widgetCorner, new Object[]{0, 6, 12, 20, 32}, v -> v + " dp");
+        option("widget_border", R.string.xs_widget_border, c.widgetBorder, new Object[]{0, 1, 2, 3}, v -> (Integer) v == 0
+                ? text(R.string.off) : v + " dp");
+        option("widget_border_opacity", R.string.xs_widget_border_opacity, c.widgetBorderOpacity,
+                new Object[]{10, 20, 30, 50, 70, 100}, v -> v + "%");
         // Read when opened: the dialog may have changed it since this screen was built.
         action(R.string.xs_widget_places, () -> new WidgetPlacementDialog(activity, Config.tvOverrides(activity
                 .getSharedPreferences(Config.SETTINGS_NAME, Activity.MODE_PRIVATE)).optString("widget_layout", c.widgetLayout),

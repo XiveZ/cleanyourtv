@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Objects;
 
-/** The New Year countdown: time to midnight of 1 January; all of New Year's Day counts as zero. */
+/** The New Year countdown: time to midnight of 1 January (or another target day). */
 final class NewYear {
     private NewYear() { }
 
@@ -18,9 +18,12 @@ final class NewYear {
         return secondsLeft(now, MonthDay.of(1, 1));
     }
 
-    /** Seconds to midnight starting {@code day}; the whole of that day counts as zero. */
+    /**
+     * Seconds to midnight starting {@code day}. The first five minutes of that day (Celebration) count as zero;
+     * after them the count runs to the same day next year.
+     */
     static long secondsLeft(LocalDateTime now, MonthDay day) {
-        if (MonthDay.from(now).equals(day)) return 0;
+        if (Celebration.secondsIn(now, day) >= 0) return 0;
         LocalDateTime next = day.atYear(now.getYear()).atStartOfDay();
         if (!next.isAfter(now)) next = day.atYear(now.getYear() + 1).atStartOfDay();
         return Duration.between(now, next).getSeconds();

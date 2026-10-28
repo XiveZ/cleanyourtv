@@ -184,7 +184,7 @@ final class NewYearView extends View {
         c.drawLine(cx, 0, cx, cy - 26 * d, line);
         line.setColor(0xFFE6C36A);
         line.setStrokeWidth(2 * d);
-        octahedron(c, cx, cy, 28 * d, t * 0.6f);
+        octahedron(c, line, cx, cy, 28 * d, t * 0.6f);
         for (int k = 0; k < 4; k++) {
             // The big one's four side corners, where octahedron() puts them.
             double ang = t * 0.6f - Math.PI / 2 * k;
@@ -195,12 +195,12 @@ final class NewYearView extends View {
             c.drawLine(px, py, px, py + 10 * d, line);
             line.setColor(0xFFE6C36A);
             line.setStrokeWidth(1.4f * d);
-            octahedron(c, px, py + 17 * d, 7 * d, -t);
+            octahedron(c, line, px, py + 17 * d, 7 * d, -t);
         }
     }
 
     /** An octahedron's 12 edges, turned by {@code angle} around the vertical and tipped a little towards the eye. */
-    private void octahedron(Canvas c, float cx, float cy, float r, float angle) {
+    static void octahedron(Canvas c, Paint line, float cx, float cy, float r, float angle) {
         float[][] v = {{0, -1, 0}, {0, 1, 0}, {1, 0, 0}, {0, 0, 1}, {-1, 0, 0}, {0, 0, -1}};
         float[] x = new float[6], y = new float[6];
         double cos = Math.cos(angle), sin = Math.sin(angle), tilt = 0.35;

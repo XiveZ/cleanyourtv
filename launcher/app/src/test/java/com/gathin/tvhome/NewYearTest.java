@@ -15,9 +15,10 @@ public class NewYearTest {
     }
 
     @Test
-    public void onNewYearsDayTheCountIsZeroThenTheNextYearStarts() {
+    public void theCountIsZeroForTheFiveMinutesOfCelebrationThenTheNextYearStarts() {
         assertEquals(0, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 1, 0, 0, 0)));
-        assertEquals(0, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 1, 23, 59, 59)));
+        assertEquals(0, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 1, 0, 4, 59)));
+        assertEquals(365L * 86400 - 300, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 1, 0, 5, 0)));
         assertEquals(364L * 86400 - 1, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 2, 0, 0, 1)));
     }
 
@@ -33,9 +34,9 @@ public class NewYearTest {
         LocalDateTime now = LocalDateTime.of(2026, 10, 28, 12, 0, 0);
         assertEquals(57L * 86400 + 12 * 3600, NewYear.secondsLeft(now, catholic));
         assertEquals(70L * 86400 + 12 * 3600, NewYear.secondsLeft(now, orthodox));
-        // On the day itself: zero all day; the day after, a year to go.
-        assertEquals(0, NewYear.secondsLeft(LocalDateTime.of(2026, 12, 25, 18, 0), catholic));
-        assertEquals(0, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 7, 9, 0), orthodox));
+        // On the day itself: zero for the five minutes of celebration, then a year to go.
+        assertEquals(0, NewYear.secondsLeft(LocalDateTime.of(2026, 12, 25, 0, 2), catholic));
+        assertEquals(365L * 86400 - 9 * 3600, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 7, 9, 0), orthodox));
         assertEquals(364L * 86400, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 8, 0, 0), orthodox));
     }
 

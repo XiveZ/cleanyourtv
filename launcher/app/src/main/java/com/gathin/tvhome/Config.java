@@ -85,6 +85,9 @@ final class Config {
     /** widget_gap (dp) between the header widgets, widget_backdrop a dark pill behind each, widget_layout their places. */
     int widgetGap = 8;
     boolean widgetBackdrop;
+    /** The backdrop: colour (Backdrop.COLORS), opacity %, gradient (none, vertical, horizontal), corner dp, border dp and its opacity %. */
+    String widgetBackdropColor = "#000000", widgetBackdropGradient = "none";
+    int widgetBackdropOpacity = 50, widgetCorner = 12, widgetBorder = 0, widgetBorderOpacity = 30;
     String widgetLayout = "";
 
     final List<String> dockApps;
@@ -744,6 +747,12 @@ final class Config {
             config.newYearText = string(json, "new_year_text", "short");
             config.widgetGap = integer(json, "widget_gap", 8, 0, 48);
             config.widgetBackdrop = bool(json, "widget_backdrop", false);
+            config.widgetBackdropColor = string(json, "widget_backdrop_color", "#000000");
+            config.widgetBackdropOpacity = integer(json, "widget_backdrop_opacity", 50, 0, 100);
+            config.widgetBackdropGradient = string(json, "widget_backdrop_gradient", "none");
+            config.widgetCorner = integer(json, "widget_corner", 12, 0, 40);
+            config.widgetBorder = integer(json, "widget_border", 0, 0, 6);
+            config.widgetBorderOpacity = integer(json, "widget_border_opacity", 30, 0, 100);
             config.widgetLayout = string(json, "widget_layout", "");
         }
         return config;
