@@ -101,4 +101,19 @@
     <string name="shower_leonids">Leonids</string>
     <string name="shower_geminids">Geminids</string>
     <string name="shower_ursids">Ursids</string>
+    <string name="xs_new_year_on">New Year countdown with a fir tree</string>
+    <string name="xs_new_year">New Year countdown</string>
+    <string name="xs_astro_short">Sun, moon, meteor showers</string>
+    <string name="xs_widget_gap">Space between widgets</string>
+    <string name="xs_widget_backdrop">Dark backdrop behind widgets</string>
+    <string name="xs_widget_places">Widget places…</string>
+    <string name="xs_widget_places_hint">OK picks a widget up. Up and Down change the order, Left and Right the side. OK or Back sets it down.</string>
+    <string name="xs_widget_left">under the clock</string>
+    <string name="xs_widget_right">on the right</string>
+    <string name="new_year_until">UNTIL THE NEW YEAR</string>
+    <string name="new_year_happy">Happy New Year!</string>
+    <plurals name="new_year_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
 </resources>

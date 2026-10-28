@@ -78,6 +78,12 @@ final class Config {
     boolean hideGridUnderDock;
     /** show_astro: sunrise, sunset, the moon and meteor showers under the clock (Astro). */
     boolean showAstro;
+    /** show_new_year: the fir tree and the countdown to 1 January (NewYearView). */
+    boolean showNewYear;
+    /** widget_gap (dp) between the header widgets, widget_backdrop a dark pill behind each, widget_layout their places. */
+    int widgetGap = 8;
+    boolean widgetBackdrop;
+    String widgetLayout = "";
 
     final List<String> dockApps;
     /** Grid apps fill the dock slots dock_apps leaves free (config.xml, fill_dock); on by default, false leaves the slots empty. */
@@ -719,6 +725,10 @@ final class Config {
             config.statsRefreshSeconds = integer(json, "stats_refresh_seconds", 10, 2, 300);
             config.hideGridUnderDock = bool(json, "hide_grid_under_dock", false);
             config.showAstro = bool(json, "show_astro", false);
+            config.showNewYear = bool(json, "show_new_year", false);
+            config.widgetGap = integer(json, "widget_gap", 8, 0, 48);
+            config.widgetBackdrop = bool(json, "widget_backdrop", false);
+            config.widgetLayout = string(json, "widget_layout", "");
         }
         return config;
     }

@@ -82,6 +82,13 @@ final class ExtraSettings {
         bool("show_network_pill", R.string.xs_network_pill, c.showNetworkPill);
         bool("show_inputs_pill", R.string.xs_inputs_pill, c.showInputsPill);
         bool("show_astro", R.string.xs_astro, c.showAstro);
+        bool("show_new_year", R.string.xs_new_year_on, c.showNewYear);
+        option("widget_gap", R.string.xs_widget_gap, c.widgetGap, new Object[]{0, 4, 8, 12, 16, 24, 32}, v -> v + " dp");
+        bool("widget_backdrop", R.string.xs_widget_backdrop, c.widgetBackdrop);
+        // Read when opened: the dialog may have changed it since this screen was built.
+        action(R.string.xs_widget_places, () -> new WidgetPlacementDialog(activity, Config.tvOverrides(activity
+                .getSharedPreferences(Config.SETTINGS_NAME, Activity.MODE_PRIVATE)).optString("widget_layout", c.widgetLayout),
+                changed).show());
         bool("show_stats", R.string.xs_stats, c.showStats);
         option("stats_refresh_seconds", R.string.xs_stats_every, c.statsRefreshSeconds,
                 new Object[]{2, 5, 10, 30, 60}, this::seconds);

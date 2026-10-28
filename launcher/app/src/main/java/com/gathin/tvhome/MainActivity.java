@@ -535,6 +535,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         astro = findViewById(R.id.astro);
         astroLine = new AstroLine(getResources());
         if (cfg.showAstro && astroLine.placed()) astro.setVisibility(View.VISIBLE);
+        java.util.Map<String, View> headerWidgets = new java.util.HashMap<>();
+        headerWidgets.put("astro", astro);
+        headerWidgets.put("stats", stats);
+        if (cfg.showNewYear) headerWidgets.put("newyear", new NewYearView(this, cfg.animations && !cfg.reducedMotion));
+        HeaderWidgets.arrange(findViewById(R.id.widgetsLeft), findViewById(R.id.widgetsRight), headerWidgets, cfg);
         raceCalendar = cfg.raceCalendar;
         racePanel = findViewById(R.id.racePanel);
         raceKicker = findViewById(R.id.raceKicker);

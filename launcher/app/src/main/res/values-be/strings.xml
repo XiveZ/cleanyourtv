@@ -250,4 +250,21 @@
     <string name="shower_ursids">Урсіды</string>
     <string name="more_inputs">Іншыя ўваходы</string>
     <string name="game_live">Зараз у эфіры</string>
+    <string name="xs_new_year_on">Адлік да Новага года з ялінкай</string>
+    <string name="xs_new_year">Да Новага года</string>
+    <string name="xs_astro_short">Сонца, Месяц, зорапады</string>
+    <string name="xs_widget_gap">Водступ паміж віджэтамі</string>
+    <string name="xs_widget_backdrop">Цёмны фон пад віджэтамі</string>
+    <string name="xs_widget_places">Месца віджэтаў…</string>
+    <string name="xs_widget_places_hint">OK бярэ віджэт. «Уверх» і «Уніз» мяняюць парадак, «Улева» і «Управа» — бок экрана. OK ці «Назад» ставіць на месца.</string>
+    <string name="xs_widget_left">пад гадзіннікам</string>
+    <string name="xs_widget_right">справа</string>
+    <string name="new_year_until">ДА НОВАГА ГОДА</string>
+    <string name="new_year_happy">З Новым годам!</string>
+    <plurals name="new_year_days">
+        <item quantity="one">%d дзень</item>
+        <item quantity="few">%d дні</item>
+        <item quantity="many">%d дзён</item>
+        <item quantity="other">%d дня</item>
+    </plurals>
 </resources>
