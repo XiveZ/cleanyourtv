@@ -1024,6 +1024,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         restartIdleClock();
         dockVisibility.onResume();
+        // A new set from the New wallpapers add-on: copied in the background, then Home rebuilds with it.
+        WallpaperImport.syncAsync(this, () -> runOnUiThread(() -> {
+            if (resumed && !isFinishing()) recreate();
+        }));
         promptsPaused = false;
         if (grid.getAdapter() == null) grid.setAdapter(adapter);   // dropped by onTrimMemory
         switch (tileRefresh.onResume(packagesChangedSinceRebuild())) {

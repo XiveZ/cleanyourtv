@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">New wallpapers</string>
+    <string name="title">New wallpapers for Home</string>
+    <string name="every">Update every</string>
+    <string name="off">Off</string>
+    <string name="week">week</string>
+    <string name="month">month</string>
+    <string name="year">year</string>
+    <string name="days">%1$d days</string>
+    <string name="count">Pictures</string>
+    <string name="now">Update now</string>
+    <string name="never">Not updated yet.</string>
+    <string name="last">Last update: %1$s, %2$d pictures. Next: %3$s.</string>
+    <string name="running">Downloading: %1$d of %2$d…</string>
+    <string name="failed">Last try failed: %1$s</string>
+    <string name="note">Anime pictures from wallhaven.cc (safe for work, 16:9, Full HD or larger), cut to 1920×1080. Home picks them up the next time it comes back.</string>
+</resources>

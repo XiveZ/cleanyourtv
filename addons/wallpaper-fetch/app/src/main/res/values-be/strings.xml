@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Новыя шпалеры</string>
+    <string name="title">Новыя шпалеры для галоўнага экрана</string>
+    <string name="every">Абнаўляць кожны</string>
+    <string name="off">Выкл.</string>
+    <string name="week">тыдзень</string>
+    <string name="month">месяц</string>
+    <string name="year">год</string>
+    <string name="days">%1$d дзён</string>
+    <string name="count">Колькасць карцінак</string>
+    <string name="now">Абнавіць зараз</string>
+    <string name="never">Яшчэ не абнаўлялася.</string>
+    <string name="last">Апошняе абнаўленне: %1$s, карцінак: %2$d. Наступнае: %3$s.</string>
+    <string name="running">Спампоўваю: %1$d з %2$d…</string>
+    <string name="failed">Апошняя спроба не ўдалася: %1$s</string>
+    <string name="note">Анімэ-карцінкі з wallhaven.cc (толькі SFW, 16:9, Full HD і больш), абрэзаныя да 1920×1080. Галоўны экран забярэ іх, калі вы на яго вернецеся.</string>
+</resources>
