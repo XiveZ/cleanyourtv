@@ -37,11 +37,14 @@ final class ExtraSettings {
     private final LinearLayout box;
     private final Config config;
     private final Runnable changed;
+    /** Closes the settings and opens the module cards list on Home. */
+    private final Runnable openCards;
 
-    ExtraSettings(Activity activity, LinearLayout box, Runnable changed) {
+    ExtraSettings(Activity activity, LinearLayout box, Runnable changed, Runnable openCards) {
         this.activity = activity;
         this.box = box;
         this.changed = changed;
+        this.openCards = openCards;
         this.config = Config.load(activity);
     }
 
@@ -102,6 +105,23 @@ final class ExtraSettings {
         option("home_idle_clock_minutes", R.string.xs_idle_clock, c.homeIdleClockMinutes,
                 new Object[]{0, 1, 5, 10, 15, 30, 60}, this::minutes);
         bool("clock_wallpaper", R.string.xs_clock_wallpaper, c.clockWallpaper);
+        bool("clock_glow", R.string.xs_clock_glow, c.clockGlow);
+        bool("header_white", R.string.xs_header_white, c.headerWhite);
+        bool("icon_only_buttons", R.string.xs_icon_only_buttons, c.iconOnlyButtons);
+        bool("wifi_status_color", R.string.xs_wifi_colour, c.wifiStatusColor);
+        bool("dock_title", R.string.xs_dock_title, c.dockTitle);
+        option("glass_style", R.string.xs_glass_style, c.glassStyle,
+                new Object[]{Config.GLASS_DEFAULT, Config.GLASS_RIM, Config.GLASS_HALO},
+                v -> text(Config.GLASS_RIM.equals(v) ? R.string.xs_glass_rim
+                        : Config.GLASS_HALO.equals(v) ? R.string.xs_glass_halo : R.string.xs_glass_glass));
+        bool("launcher_settings_button", R.string.xs_gear_opens_launcher, c.launcherSettingsButton);
+
+        section(R.string.xs_section_addons);
+        int installed = activity.getPackageManager().queryIntentActivities(new android.content.Intent(
+                android.content.Intent.ACTION_MAIN).addCategory("com.gathin.tvhome.category.DOCK_CARD"), 0).size();
+        action(R.string.xs_addons_manage, openCards);
+        bool("module_cards", R.string.xs_addons_on, c.moduleCards);
+        hint(activity.getString(R.string.xs_addons_hint, installed));
     }
 
     // ---- rows ------------------------------------------------------------------------------------
@@ -137,6 +157,10 @@ final class ExtraSettings {
     }
 
     private void hint(int text) {
+        hint(activity.getString(text));
+    }
+
+    private void hint(String text) {
         TextView t = new TextView(activity);
         t.setText(text);
         t.setTextColor(0xFFACB8C1);

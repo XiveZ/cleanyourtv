@@ -53,4 +53,18 @@
     <string name="xs_minutes">%1$d min</string>
     <string name="xs_hours">%1$d h</string>
     <string name="xs_seconds">%1$d s</string>
+    <string name="xs_clock_glow">Glow around the clock</string>
+    <string name="xs_header_white">White header text</string>
+    <string name="xs_icon_only_buttons">Icon-only buttons at the top</string>
+    <string name="xs_wifi_colour">Network button shows signal colour</string>
+    <string name="xs_dock_title">Big app name above the dock</string>
+    <string name="xs_glass_style">Focus highlight</string>
+    <string name="xs_glass_glass">Glass</string>
+    <string name="xs_glass_rim">Rim</string>
+    <string name="xs_glass_halo">Halo</string>
+    <string name="xs_gear_opens_launcher">Gear opens these settings (hold OK: menu)</string>
+    <string name="xs_section_addons">Add-ons and widgets</string>
+    <string name="xs_addons_manage">Module cards (add-ons)…</string>
+    <string name="xs_addons_on">Look for add-on cards</string>
+    <string name="xs_addons_hint">Add-ons are small apps that put a card on Home (weather, world clock, sleep timer…). Installed now: %1$d. They are built and installed from the computer, from the repo\'s addons folder.</string>
 </resources>

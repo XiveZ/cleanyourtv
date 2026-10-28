@@ -1082,6 +1082,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == LAUNCHER_SETTINGS_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getBooleanExtra(LauncherSettingsActivity.EXTRA_CARDS, false)) {
+            getIntent().putExtra(LauncherSettingsActivity.EXTRA_CARDS, true);   // shown once Home is ready
+        }
+        if (requestCode == LAUNCHER_SETTINGS_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getBooleanExtra(LauncherSettingsActivity.EXTRA_REORDER, false)) {
             getIntent().putExtra(LauncherSettingsActivity.EXTRA_REORDER, true);
             // The old activity must not consume the pending action, or rebuild a second time in onResume.
@@ -1092,6 +1096,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void startPendingSettingsReorder() {
+        if (!settingsRecreationPending && tilesReady && hasWindowFocus() && !isFinishing()
+                && getIntent().getBooleanExtra(LauncherSettingsActivity.EXTRA_CARDS, false)) {
+            getIntent().removeExtra(LauncherSettingsActivity.EXTRA_CARDS);
+            showModuleCards();
+            return;
+        }
         if (settingsRecreationPending || !tilesReady || !hasWindowFocus() || isFinishing()
                 || !getIntent().getBooleanExtra(LauncherSettingsActivity.EXTRA_REORDER, false)) return;
         getIntent().removeExtra(LauncherSettingsActivity.EXTRA_REORDER);

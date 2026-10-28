@@ -200,4 +200,18 @@
     <string name="xs_minutes">%1$d хв</string>
     <string name="xs_hours">%1$d гадз</string>
     <string name="xs_seconds">%1$d с</string>
+    <string name="xs_clock_glow">Свячэнне вакол гадзінніка</string>
+    <string name="xs_header_white">Белы тэкст уверсе</string>
+    <string name="xs_icon_only_buttons">Кнопкі ўверсе толькі значкамі</string>
+    <string name="xs_wifi_colour">Кнопка сеткі паказвае колер сігналу</string>
+    <string name="xs_dock_title">Вялікая назва праграмы над панэллю</string>
+    <string name="xs_glass_style">Падсвятленне фокусу</string>
+    <string name="xs_glass_glass">Шкло</string>
+    <string name="xs_glass_rim">Абводка</string>
+    <string name="xs_glass_halo">Арэол</string>
+    <string name="xs_gear_opens_launcher">Шасцярэнка адкрывае гэтыя налады (затрымаць OK: меню)</string>
+    <string name="xs_section_addons">Аддоны і віджэты</string>
+    <string name="xs_addons_manage">Карткі модуляў (аддоны)…</string>
+    <string name="xs_addons_on">Шукаць карткі аддонаў</string>
+    <string name="xs_addons_hint">Аддоны — маленькія праграмы, якія дадаюць картку на Home (надвор\'е, сусветны гадзіннік, таймер сну…). Зараз усталявана: %1$d. Яны збіраюцца і ўсталёўваюцца з камп\'ютара, з тэчкі addons у рэпазіторыі.</string>
 </resources>

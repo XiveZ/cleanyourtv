@@ -27,6 +27,8 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     static final String EXTRA_REORDER = "com.gathin.tvhome.extra.REORDER_FROM_SETTINGS";
+    /** Back on Home, open the module cards list (the add-ons). */
+    static final String EXTRA_CARDS = "com.gathin.tvhome.extra.CARDS_FROM_SETTINGS";
     private SharedPreferences choices;
     private final TextView[] columnChoices = new TextView[4];
     private final TextView[] rowChoices = new TextView[4];
@@ -135,7 +137,10 @@ public final class LauncherSettingsActivity extends Activity {
             openOnStartChoice.setVisibility(View.VISIBLE);
             openOnStartChoice.setOnClickListener(v -> showOpenOnStartPicker());
         }
-        new ExtraSettings(this, findViewById(R.id.extraSettings), () -> setResult(RESULT_OK)).build();
+        new ExtraSettings(this, findViewById(R.id.extraSettings), () -> setResult(RESULT_OK), () -> {
+            setResult(RESULT_OK, new Intent().putExtra(EXTRA_CARDS, true));
+            finish();
+        }).build();
         followThemeChoice = findViewById(R.id.followThemeChoice);
         followThemeChoice.setOnClickListener(v -> {
             if (!hasOnTvChoices()) return;
