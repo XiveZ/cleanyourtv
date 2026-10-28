@@ -10,16 +10,17 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Remote-friendly settings owned by the launcher; system settings stay one row away. */
-public final class LauncherSettingsActivity extends Activity {
+/**
+ * Remote-friendly settings owned by the launcher, in three panes (SettingsScreen) built from SettingsCatalog;
+ * system settings stay one row away.
+ */
+public final class LauncherSettingsActivity extends Activity implements SettingsCatalog.Host {
     @Override
     protected void attachBaseContext(android.content.Context base) {
         super.attachBaseContext(LauncherLocale.wrap(base));   // locale
@@ -29,177 +30,140 @@ public final class LauncherSettingsActivity extends Activity {
     /** Back on Home, open the module cards list (the add-ons). */
     static final String EXTRA_CARDS = "com.gathin.tvhome.extra.CARDS_FROM_SETTINGS";
     private SharedPreferences choices;
-    private final TextView[] columnChoices = new TextView[4];
-    private final TextView[] rowChoices = new TextView[4];
-    private static final int[] DOCK_OPACITIES = {100, 70, 50, 30};
-    private final TextView[] dockChoices = new TextView[DOCK_OPACITIES.length];
-    private TextView wallpaperChoice;
-    private ExtraSettings extraSettings;
-    private TextView animationsChoice;
-    private TextView advancedChoice;
-    private TextView followThemeChoice;
-    private TextView openOnStartChoice;
-    private int columns;
-    private int rowsBelowDock;
-    private int dockOpacity;
-    private boolean animations;
-    private boolean advancedEffects;
+    private Config config;
+    private SettingsScreen screen;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.activity_launcher_settings);
         choices = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE);
-        Config config = Config.load(this);
-        View reorderChoice = findViewById(R.id.reorderChoice);
-        reorderChoice.setVisibility(config.launcherSettingsButton ? View.VISIBLE : View.GONE);
-        reorderChoice.setOnClickListener(v -> {
-            setResult(RESULT_OK, new Intent().putExtra(EXTRA_REORDER, true));
-            finish();
-        });
-        columns = config.columns;
-        rowsBelowDock = config.rowsBelowDock;
-        dockOpacity = config.dockOpacity;
-        animations = config.animations;
-        advancedEffects = config.animations && config.advancedEffects;
-
-        int[] ids = {R.id.columns4, R.id.columns5, R.id.columns6, R.id.columns7};
-        for (int i = 0; i < ids.length; i++) {
-            final int value = i + 4;
-            columnChoices[i] = findViewById(ids[i]);
-            columnChoices[i].setOnClickListener(v -> {
-                if (columns == value) return;
-                columns = value;
-                choices.edit().putInt("columns", value).apply();
-                changed();
-                refresh();
-            });
-        }
-        int[] rowIds = {R.id.rows0, R.id.rows1, R.id.rows2, R.id.rows3};
-        for (int i = 0; i < rowIds.length; i++) {
-            final int value = i;
-            rowChoices[i] = findViewById(rowIds[i]);
-            rowChoices[i].setOnClickListener(v -> {
-                if (rowsBelowDock == value) return;
-                rowsBelowDock = value;
-                choices.edit().putInt(Config.ROWS_BELOW_DOCK_KEY, value).apply();
-                changed();
-                refresh();
-            });
-        }
-        int[] dockIds = {R.id.dock100, R.id.dock70, R.id.dock50, R.id.dock30};
-        for (int i = 0; i < dockIds.length; i++) {
-            final int value = DOCK_OPACITIES[i];
-            dockChoices[i] = findViewById(dockIds[i]);
-            dockChoices[i].setOnClickListener(v -> {
-                if (dockOpacity == value) return;
-                dockOpacity = value;
-                choices.edit().putInt(Config.DOCK_OPACITY_KEY, value).apply();
-                changed();
-                refresh();
-            });
-        }
-        // Mirror text alignment without globally opting the launcher into RTL. Numeric rows
-        // still need explicit ordering in Android's no-supportsRtl compatibility mode.
-        if (getResources().getBoolean(R.bool.rtl_menu_bar))
-            findViewById(android.R.id.content).setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-        if (getResources().getBoolean(R.bool.rtl_app_grid)) {
-            reverseRow(columnChoices);
-            reverseRow(rowChoices);
-            reverseRow(dockChoices);
-        }
-        wallpaperChoice = findViewById(R.id.wallpaperChoice);
-        extraSettings = new ExtraSettings(this, findViewById(R.id.extraSettings), () -> {
-            changed();
-            refresh();
-        }, () -> {
-            setResult(RESULT_OK, new Intent().putExtra(EXTRA_CARDS, true));
-            finish();
-        });
-        WallpaperGallery gallery = new WallpaperGallery(this, () -> {
-            changed();
-            refresh();
-        });
-        wallpaperChoice.setOnClickListener(v -> gallery.show());
-        animationsChoice = findViewById(R.id.animationsChoice);
-        animationsChoice.setOnClickListener(v -> {
-            animations = !animations;
-            if (!animations) advancedEffects = false;
-            choices.edit().putBoolean("animations", animations)
-                    .putBoolean("advanced_effects", advancedEffects).apply();
-            changed();
-            refresh();
-        });
-        advancedChoice = findViewById(R.id.advancedChoice);
-        advancedChoice.setOnClickListener(v -> {
-            if (advancedEffects) {
-                setAdvanced(false);
-            } else {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.advanced_effects)
-                        .setMessage(R.string.advanced_effects_warning)
-                        .setPositiveButton(R.string.enable, (dialog, which) -> setAdvanced(true))
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show();
-            }
-        });
-        openOnStartChoice = findViewById(R.id.openOnStartChoice);
-        if (config.openOnStartChoice) {
-            openOnStartChoice.setVisibility(View.VISIBLE);
-            openOnStartChoice.setOnClickListener(v -> showOpenOnStartPicker());
-        }
-        extraSettings.build();
-        followThemeChoice = findViewById(R.id.followThemeChoice);
-        followThemeChoice.setOnClickListener(v -> {
-            if (!hasOnTvChoices()) return;
-            // It undoes every choice made here at once (the dock, wallpaper timing, widgets): ask first.
-            AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setTitle(R.string.follow_theme)
-                    .setMessage(R.string.follow_theme_confirm)
-                    .setPositiveButton(R.string.follow_theme_reset, (d, which) -> followTheme())
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show();
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).requestFocus();
-        });
-        findViewById(R.id.defaultHomeChoice).setOnClickListener(v -> {
-            // The system's Default home screen page is see-through on some TVs (Android 14's permission
-            // controller): with these rows behind it, neither is readable. Show plain black behind it instead.
-            getWindow().getDecorView().setBackgroundColor(0xFF000000);
-            findViewById(android.R.id.content).setVisibility(View.INVISIBLE);
-            Toast.makeText(this, R.string.home_settings_help, Toast.LENGTH_LONG).show();
-            open(new Intent(Settings.ACTION_HOME_SETTINGS));
-        });
-        findViewById(R.id.tvSettingsChoice).setOnClickListener(v ->
-                open(SystemSettings.intent(this, Settings.ACTION_SETTINGS)));
-        refresh();
-        if (config.launcherSettingsButton) reorderChoice.requestFocus();
-        else columnChoices[Math.max(0, Math.min(columns - 4, 3))].requestFocus();
+        config = Config.load(this);
+        screen = new SettingsScreen(this, new SettingsCatalog(this, this).build());
+        screen.show();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         View content = findViewById(android.R.id.content);
-        if (content.getVisibility() != View.VISIBLE) {
-            content.setVisibility(View.VISIBLE);
-            findViewById(R.id.defaultHomeChoice).requestFocus();   // hiding the rows dropped the focus
-        }
+        if (content.getVisibility() != View.VISIBLE) content.setVisibility(View.VISIBLE);
+        screen.refresh();   // a picker or a dialog may have changed a value
     }
 
-    /** Drops every on-TV choice; the screen is built again with the theme's values. */
-    private void followTheme() {
-        choices.edit().remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
-                .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
-                .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).remove(Config.TV_OVERRIDES_KEY).commit();
-        changed();
-        recreate();
+    @Override
+    public void onBackPressed() {
+        if (!screen.back()) super.onBackPressed();
     }
 
-    private void reverseRow(TextView[] views) {
-        LinearLayout row = (LinearLayout) views[0].getParent();
-        row.removeAllViews();
-        for (int i = views.length - 1; i >= 0; i--) row.addView(views[i]);
+    // ---- SettingsCatalog.Host ----------------------------------------------------------------------
+
+    /**
+     * A choice was saved. Home rebuilds when it next resumes because the change count moved, whether these
+     * settings are left with Back or with the remote's Home button (which cancels the activity result).
+     */
+    @Override
+    public void changed() {
+        setResult(RESULT_OK);
+        choices.edit().putLong(Config.SETTINGS_REVISION_KEY,
+                choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();
     }
+
+    @Override
+    public void openGallery() {
+        new WallpaperGallery(this, () -> {
+            changed();
+            screen.refresh();
+        }).show();
+    }
+
+    @Override
+    public void reorder() {
+        setResult(RESULT_OK, new Intent().putExtra(EXTRA_REORDER, true));
+        finish();
+    }
+
+    @Override
+    public void openCards() {
+        setResult(RESULT_OK, new Intent().putExtra(EXTRA_CARDS, true));
+        finish();
+    }
+
+    @Override
+    public void widgetPlaces() {
+        // Read when opened: the dialog may have changed it since this screen was built.
+        new WidgetPlacementDialog(this, Config.tvOverrides(choices).optString("widget_layout", config.widgetLayout),
+                this::changed).show();
+    }
+
+    @Override
+    public void preview() {
+        startActivity(new Intent(this, CelebrationActivity.class));
+    }
+
+    @Override
+    public boolean openOnStartAvailable() {
+        return config.openOnStartChoice;
+    }
+
+    @Override
+    public void openOnStart() {
+        showOpenOnStartPicker();
+    }
+
+    @Override
+    public String openOnStartLabel() {
+        return openOnStartName();
+    }
+
+    @Override
+    public void defaultHome() {
+        // The system's Default home screen page is see-through on some TVs (Android 14's permission
+        // controller): with these rows behind it, neither is readable. Show plain black behind it instead.
+        getWindow().getDecorView().setBackgroundColor(0xFF000000);
+        findViewById(android.R.id.content).setVisibility(View.INVISIBLE);
+        Toast.makeText(this, R.string.home_settings_help, Toast.LENGTH_LONG).show();
+        open(new Intent(Settings.ACTION_HOME_SETTINGS));
+    }
+
+    @Override
+    public void tvSettings() {
+        open(SystemSettings.intent(this, Settings.ACTION_SETTINGS));
+    }
+
+    @Override
+    public void followTheme() {
+        // It undoes every choice made here at once (the dock, wallpaper timing, widgets): ask first.
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.follow_theme)
+                .setMessage(R.string.follow_theme_confirm)
+                .setPositiveButton(R.string.follow_theme_reset, (d, which) -> {
+                    choices.edit().remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
+                            .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
+                            .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).remove(Config.TV_OVERRIDES_KEY)
+                            .commit();
+                    changed();
+                    recreate();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).requestFocus();
+    }
+
+    @Override
+    public void confirmAdvanced(Runnable yes) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.advanced_effects)
+                .setMessage(R.string.advanced_effects_warning)
+                .setPositiveButton(R.string.enable, (dialog, which) -> {
+                    yes.run();
+                    screen.refresh();
+                })
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> recreate())   // shows Off again
+                .show();
+    }
+
+    // ---- Open on start -------------------------------------------------------------------------------
 
     /** Off, then every app with a TV entry point by name. Saved at once; it is read on the next boot. */
     private void showOpenOnStartPicker() {
@@ -231,14 +195,14 @@ public final class LauncherSettingsActivity extends Activity {
                         OpenOnStart.skipThisBoot(this);
                         choices.edit().putString(OpenOnStart.KEY, apps.get(which - 1)[1]).apply();
                     }
-                    refresh();
+                    screen.refresh();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
     /** The picked app's name, its package when it is gone, or Off. */
-    private String openOnStartLabel() {
+    private String openOnStartName() {
         String pkg = choices.getString(OpenOnStart.KEY, "");
         if (pkg.isEmpty()) return getString(R.string.off);
         try {
@@ -247,55 +211,6 @@ public final class LauncherSettingsActivity extends Activity {
         } catch (PackageManager.NameNotFoundException e) {
             return pkg;
         }
-    }
-
-    /**
-     * A choice was saved. Home rebuilds when it next resumes because the change count moved, whether these
-     * settings are left with Back or with the remote's Home button (which cancels the activity result).
-     */
-    private void changed() {
-        setResult(RESULT_OK);
-        choices.edit().putLong(Config.SETTINGS_REVISION_KEY,
-                choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();
-    }
-
-    private void setAdvanced(boolean enabled) {
-        advancedEffects = enabled;
-        choices.edit().putBoolean("advanced_effects", enabled).apply();
-        changed();
-        refresh();
-    }
-
-    private void refresh() {
-        for (int i = 0; i < columnChoices.length; i++) {
-            columnChoices[i].setSelected(columns == i + 4);
-        }
-        for (int i = 0; i < rowChoices.length; i++) {
-            rowChoices[i].setSelected(rowsBelowDock == i);
-        }
-        for (int i = 0; i < dockChoices.length; i++) {
-            dockChoices[i].setSelected(dockOpacity == DOCK_OPACITIES[i]);
-        }
-        animationsChoice.setText(getString(R.string.animations_state,
-                getString(animations ? R.string.on : R.string.off)));
-        advancedChoice.setText(getString(R.string.advanced_effects_state,
-                getString(advancedEffects ? R.string.on : R.string.off)));
-        advancedChoice.setEnabled(animations);
-        advancedChoice.setAlpha(animations ? 1f : 0.5f);
-        String wallpaperCurrent = choices.getString(Config.WALLPAPER_CHOICE_KEY, null);
-        wallpaperChoice.setText(getString(R.string.wallpaper_state,
-                "none".equals(wallpaperCurrent) ? getString(R.string.wallpaper_none)
-                        : wallpaperCurrent != null ? wallpaperCurrent
-                        : getString(R.string.wallpaper_theme_default)));
-        openOnStartChoice.setText(getString(R.string.open_on_start_state, openOnStartLabel()));
-        followThemeChoice.setSelected(!hasOnTvChoices());
-    }
-
-    private boolean hasOnTvChoices() {
-        return choices.contains("columns") || choices.contains(Config.ROWS_BELOW_DOCK_KEY)
-                || choices.contains("animations") || choices.contains("advanced_effects")
-                || choices.contains(Config.WALLPAPER_CHOICE_KEY) || choices.contains(Config.DOCK_OPACITY_KEY)
-                || choices.contains(OpenOnStart.KEY) || choices.contains(Config.TV_OVERRIDES_KEY);
     }
 
     private void open(Intent intent) {
