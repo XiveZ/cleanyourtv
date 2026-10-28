@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Extra Launcher settings (ExtraSettings), dock modes and Remove from dock. English and Belarusian only. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="tile_remove_from_dock">Remove from dock</string>
+    <string name="xs_section_wallpaper">Wallpaper</string>
+    <string name="xs_wallpaper_gallery">View wallpapers…</string>
+    <string name="xs_wallpaper_every">Change wallpaper every</string>
+    <string name="xs_wallpaper_align">Change on the clock (19:00, 20:00…)</string>
+    <string name="xs_wallpaper_order">Order</string>
+    <string name="xs_order_shuffle">Shuffle</string>
+    <string name="xs_order_sequential">In order</string>
+    <string name="xs_wallpaper_dim">Darken wallpaper</string>
+    <string name="xs_no_wallpapers">The theme has no wallpapers.</string>
+    <string name="xs_gallery_title">Wallpapers (%1$d)</string>
+    <string name="xs_gallery_now">Now</string>
+    <string name="xs_section_dock">Dock</string>
+    <string name="xs_dock_mode">Dock</string>
+    <string name="xs_dock_always">Always shown</string>
+    <string name="xs_dock_autohide">Hide automatically</string>
+    <string name="xs_dock_drawer">Drawer (^)</string>
+    <string name="xs_dock_hide_after">Hide after</string>
+    <string name="xs_fill_dock">Fill empty dock places</string>
+    <string name="xs_single_row">One row, scrolling sideways</string>
+    <string name="xs_dock_band">Band behind the dock</string>
+    <string name="xs_dock_glass">Glass dock</string>
+    <string name="xs_dock_hint">Hidden dock: Down (or OK) brings it back, Back puts it away. To take an app out of the dock, hold OK (or Menu) on it and choose Remove from dock.</string>
+    <string name="xs_section_names">Tiles and names</string>
+    <string name="xs_always_names">Names under every tile</string>
+    <string name="xs_name_size">Name size</string>
+    <string name="xs_name_weight">Name weight</string>
+    <string name="xs_weight_regular">Regular</string>
+    <string name="xs_weight_medium">Medium</string>
+    <string name="xs_weight_bold">Bold</string>
+    <string name="xs_name_spacing">Letter spacing</string>
+    <string name="xs_uniform_tiles">Uniform icon tiles</string>
+    <string name="xs_section_effects">Effects</string>
+    <string name="xs_app_glow">Glow in the app\'s colour</string>
+    <string name="xs_ambient_glow">Background glow</string>
+    <string name="xs_fade_rows">Fade rows at the top</string>
+    <string name="xs_focus_overshoot">Springy focus</string>
+    <string name="xs_reduced_motion">Reduced motion</string>
+    <string name="xs_section_widgets">Widgets</string>
+    <string name="xs_greeting">Greeting</string>
+    <string name="xs_date_place">Date</string>
+    <string name="xs_date_beside">Beside the clock</string>
+    <string name="xs_date_below">Below the clock</string>
+    <string name="xs_network_pill">Network button</string>
+    <string name="xs_inputs_pill">Inputs button</string>
+    <string name="xs_stats">CPU and memory line</string>
+    <string name="xs_stats_every">Update the line every</string>
+    <string name="xs_idle_clock">Big clock when idle after</string>
+    <string name="xs_clock_wallpaper">Wallpaper behind the big clock</string>
+    <string name="xs_minutes">%1$d min</string>
+    <string name="xs_hours">%1$d h</string>
+    <string name="xs_seconds">%1$d s</string>
+</resources>

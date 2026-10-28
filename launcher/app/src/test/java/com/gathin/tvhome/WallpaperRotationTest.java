@@ -135,4 +135,18 @@ public class WallpaperRotationTest {
         for (int i = 0; i < out.length; i++) out[i] = files.get(i).getName();
         return Arrays.asList(out);
     }
+
+    @Test
+    public void dueOnClockChangesAtTheTopOfTheHourNotAnHourAfterTheLastChange() {
+        java.time.ZoneId minsk = java.time.ZoneId.of("Europe/Minsk");
+        long hour = 3_600_000L;
+        long changed = java.time.ZonedDateTime.of(2026, 10, 28, 18, 53, 0, 0, minsk).toInstant().toEpochMilli();
+        long at1859 = changed + 6 * 60_000L, at1900 = changed + 7 * 60_000L;
+        assertFalse(WallpaperRotation.dueOnClock(changed, at1859, hour, minsk));
+        assertTrue(WallpaperRotation.dueOnClock(changed, at1900, hour, minsk));
+        // The plain interval would wait until 19:53.
+        assertFalse(WallpaperRotation.due(changed, at1900, hour));
+        assertTrue(WallpaperRotation.dueOnClock(0, at1900, hour, minsk));
+        assertFalse(WallpaperRotation.dueOnClock(changed, at1900, 0, minsk));
+    }
 }

@@ -82,6 +82,21 @@ final class WallpaperRotation {
         return ORDER_SEQUENTIAL.equals(order) ? next(images, previous) : pick(images, previous, random);
     }
 
+    /**
+     * wallpaper_align: due once the clock enters a new interval counted from local midnight (19:00, 20:00 for 60
+     * minutes; :00, :15, :30, :45 for 15), however long ago the picture changed or Home was last on screen.
+     */
+    static boolean dueOnClock(long previous, long now, long interval, java.time.ZoneId zone) {
+        if (interval <= 0) return false;
+        if (previous == 0 || now < previous) return true;
+        return slot(now, interval, zone) != slot(previous, interval, zone);
+    }
+
+    static long slot(long time, long interval, java.time.ZoneId zone) {
+        long offset = zone.getRules().getOffset(java.time.Instant.ofEpochMilli(time)).getTotalSeconds() * 1000L;
+        return Math.floorDiv(time + offset, interval);
+    }
+
     static boolean due(long previous, long now, long interval) {
         // The minute tick is a Handler postDelayed, so it drifts by tens of milliseconds and often lands a few
         // hundred short of the interval. Compared exactly, that pass is skipped and the picture waits a whole

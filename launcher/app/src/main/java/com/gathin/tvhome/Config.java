@@ -48,6 +48,12 @@ final class Config {
      * resume when it differs, however the settings were left (see MainActivity#onResume).
      */
     static final String SETTINGS_REVISION_KEY = "settings_revision";
+    /**
+     * Theme keys chosen on the TV (Launcher settings, the extra sections): a JSON object laid over config.json, so
+     * any theme key can be changed from the remote. "Follow theme" clears it; a theme push does not.
+     */
+    static final String TV_OVERRIDES_KEY = "tv_overrides";
+    static final String DOCK_ALWAYS = "always", DOCK_AUTOHIDE = "autohide", DOCK_DRAWER = "drawer";
 
     /** True when Launcher settings changed something since Home was built at revision {@code seen}. */
     static boolean settingsChanged(long seen, long current) {
@@ -55,6 +61,19 @@ final class Config {
     }
     private static final String THEME_REVISION_NAME = "theme_revision";
     private static final String THEME_SIGNATURE_KEY = "theme_signature";
+
+    /** dock_mode: always (the dock stays), autohide (hides when idle, Down shows it) or drawer (a ^ mark until opened). */
+    String dockMode = DOCK_ALWAYS;
+    /** dock_hide_seconds: idle time before an autohide or drawer dock hides again. */
+    int dockHideSeconds = 5;
+    /** wallpaper_align: the rotation changes on the clock (19:00, 20:00 for 60 minutes), not interval after the last change. */
+    boolean wallpaperAlign;
+    /** name_size (sp), name_weight (regular, medium, bold) and name_spacing (em x 100) of the names under the tiles. */
+    int nameSize = 14;
+    String nameWeight = "medium";
+    int nameSpacing = 2;
+    /** stats_refresh_seconds: how often the CPU / memory line under the clock is read. */
+    int statsRefreshSeconds = 10;
 
     final List<String> dockApps;
     /** Grid apps fill the dock slots dock_apps leaves free (config.xml, fill_dock); on by default, false leaves the slots empty. */
@@ -518,8 +537,10 @@ final class Config {
         File file = dir != null ? new File(dir, FILE_NAME) : null;
         boolean mounted = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
         JSONObject json = readOverlay(ctx, file, mounted);
+        if (json != null) applied = true;
+        json = withTvOverrides(json, ctx.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE)
+                .getString(TV_OVERRIDES_KEY, null));
         if (json != null) {
-            applied = true;
             dock = stringList(json, "dock_apps", dock);
             fillDock = bool(json, "fill_dock", fillDock);
             hidden = stringList(json, "hidden_apps", hidden);
@@ -668,7 +689,7 @@ final class Config {
         Festival festival = json == null ? Festival.NONE : Festival.parse(string(json, "festival", ""),
                 string(json, "festival_until", ""), string(json, "greeting", ""), string(json, "accent_color", ""));
 
-        return new Config(dock, fillDock, hidden, libraryApps, libraryExcludedApps, liveTv, liveTvAction, liveTvInputId, packageMap(launchActions), packageMap(appLabels),
+        Config config = new Config(dock, fillDock, hidden, libraryApps, libraryExcludedApps, liveTv, liveTvAction, liveTvInputId, packageMap(launchActions), packageMap(appLabels),
                 packageMap(appBanners), panelService, panelAction, panelExtra, coocaaSources, inputAction, inputSources, inputUriScheme, Math.max(1, columns),
                 Math.max(0, rowsBelow), animations, advancedEffects, shamsi, greetingName, moduleCards, reducedMotion, bootToLiveTv,
                 openOnStartChoice, dockTitle, dockRow, topMenu, launcherSettingsButton, reorderButton, showNetworkPill, showInputsPill,
@@ -683,6 +704,58 @@ final class Config {
                 Math.max(0, Math.min(90, clockWallpaperDim)), clockGlow, glassStyle, singleRow && dockRow, dockBandAll, lunar, lunarOffset,
                 dateBelowClock, vpnPill, locale, powerOnHomeAlways, inputsConnectedOnly,
                 Math.max(0, Math.min(600, openOnStartNetworkWait)));
+        if (json != null) {
+            String mode = string(json, "dock_mode", DOCK_ALWAYS);
+            config.dockMode = DOCK_AUTOHIDE.equals(mode) || DOCK_DRAWER.equals(mode) ? mode : DOCK_ALWAYS;
+            config.dockHideSeconds = integer(json, "dock_hide_seconds", 5, 2, 300);
+            config.wallpaperAlign = bool(json, "wallpaper_align", false);
+            config.nameSize = integer(json, "name_size", 14, 10, 20);
+            config.nameWeight = string(json, "name_weight", "medium");
+            config.nameSpacing = integer(json, "name_spacing", 2, 0, 20);
+            config.statsRefreshSeconds = integer(json, "stats_refresh_seconds", 10, 2, 300);
+        }
+        return config;
+    }
+
+    /** The on-TV choices (TV_OVERRIDES_KEY) as an object; empty when there are none. */
+    static JSONObject tvOverrides(SharedPreferences choices) {
+        try {
+            return new JSONObject(choices.getString(TV_OVERRIDES_KEY, "{}"));
+        } catch (JSONException e) {
+            return new JSONObject();
+        }
+    }
+
+    /** Saves one on-TV choice (null removes it) and moves the change count, so Home rebuilds with it. */
+    static void putTvOverride(Context ctx, String key, Object value) {
+        SharedPreferences choices = ctx.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE);
+        JSONObject over = tvOverrides(choices);
+        try {
+            if (value == null) over.remove(key);
+            else over.put(key, value);
+        } catch (JSONException e) {
+            return;
+        }
+        choices.edit().putString(TV_OVERRIDES_KEY, over.toString())
+                .putLong(SETTINGS_REVISION_KEY, choices.getLong(SETTINGS_REVISION_KEY, 0) + 1).apply();
+    }
+
+    /** config.json with the on-TV choices laid over it; an empty object when there is no theme but there are choices. */
+    static JSONObject withTvOverrides(JSONObject json, String overrides) {
+        if (overrides == null || overrides.isEmpty()) return json;
+        try {
+            JSONObject over = new JSONObject(overrides);
+            JSONObject merged = json == null ? new JSONObject() : new JSONObject(json.toString());
+            java.util.Iterator<String> keys = over.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                merged.put(key, over.get(key));
+            }
+            return merged;
+        } catch (JSONException e) {
+            Log.w(TAG, "tv_overrides is not valid JSON; ignored");
+            return json;
+        }
     }
 
     /**

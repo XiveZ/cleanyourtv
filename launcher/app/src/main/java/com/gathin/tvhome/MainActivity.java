@@ -110,7 +110,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     static int COLUMNS = 4;
     private boolean rtlAppGrid;
     private static final long MINUTE_MS = 60_000L;
-    private static final long STATS_MS = 10_000L;
+    /** stats_refresh_seconds: how often the stats line is read. */
+    private long statsMs = 10_000L;
     /**
      * 2025-01-01. TVs without a clock battery boot at the epoch (08:00 in China) and keep it until network
      * time arrives; the clock, date and greeting stay hidden before then.
@@ -411,9 +412,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (festive) updateWifiLabel();
             sky.update();
             wallpaperPlayer.update();
-            handler.postDelayed(this, MINUTE_MS);
+            handler.postDelayed(this, toNextMinute());
         }
     };
+
+    /** Time to the start of the next minute (plus a little), so the minute tick lands on 19:00:00, not 19:00:47. */
+    private static long toNextMinute() {
+        return MINUTE_MS - System.currentTimeMillis() % MINUTE_MS + 250;
+    }
 
     private java.util.Map<Integer, String> homeAppKeys = java.util.Collections.emptyMap();
 
@@ -445,6 +451,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         festive = festival.active(LocalDate.now());
         liveTvPkg = cfg.liveTvPackage;
         idleClockMs = cfg.homeIdleClockMinutes * MINUTE_MS;
+        statsMs = cfg.statsRefreshSeconds * 1000L;
+        dockMode = cfg.dockMode;
+        dockHideMs = cfg.dockHideSeconds * 1000L;
         bootToLiveTv = cfg.bootToLiveTv;
         openOnStartChoice = cfg.openOnStartChoice;
         openOnStartWaitMs = cfg.openOnStartNetworkWait * 1000L;
@@ -496,6 +505,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // dock_title false: the name above the dock (and the cinematic lines under it) never shows; the glow
         // still follows the dock.
         if (!cfg.dockTitle) hero.setVisibility(View.GONE);
+        dockTitleShown = cfg.dockTitle;
         greeting = findViewById(R.id.greeting);
         clockBlock = findViewById(R.id.leftBlock);
         greetingColor = greeting.getCurrentTextColor();
@@ -639,6 +649,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     AnimationUtils.loadAnimation(this, R.anim.tile_enter), 0.06f));
         }
         adapter = new AppAdapter(this, this, COLUMNS, cfg);
+        if (Config.DOCK_DRAWER.equals(dockMode)) addDrawerHint();
         dockApps = cfg.dockApps;
         fillDockLeavesSlots = !cfg.fillDock;
         Order savedOrder = Order.load(Order.file(this));
@@ -1013,6 +1024,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return;
         }
         restartIdleClock();
+        if (dockHides()) hideDock(false);
         promptsPaused = false;
         if (grid.getAdapter() == null) grid.setAdapter(adapter);   // dropped by onTrimMemory
         switch (tileRefresh.onResume(packagesChangedSinceRebuild())) {
@@ -1046,7 +1058,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (gameDay != null) gameDay.start();
         sky.update();
         wallpaperPlayer.start();
-        handler.postDelayed(minuteTick, MINUTE_MS);
+        handler.postDelayed(minuteTick, toNextMinute());
         if (festive && diya != null) {
             diya.start();
             LocalDate today = LocalDate.now();
@@ -1202,6 +1214,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     public void onUserInteraction() {
         super.onUserInteraction();
         restartIdleClock();
+        if (!dockHidden) scheduleDockHide();
     }
 
     private void restartIdleClock() {
@@ -1214,6 +1227,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         super.onPause();
         resumed = false;
         root.removeCallbacks(showIdleClock);
+        root.removeCallbacks(hideDockLater);
         endReorder();   // Home or another app while reordering keeps the order so far
         wallpaperPlayer.stop();
         stopAmbientAnimation();
@@ -1326,6 +1340,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // Vendor keys (TCL Netflix button, 4062) never reach the key services, only the focused window.
         if (event.getKeyCode() >= 1000 && RemoteKeys.handle(this, event, homeAppKeys.get(event.getKeyCode()), null)) return true;
         if (handleSettingsKey(event)) return true;
+        if (handleDockModeKey(event)) return true;
         if (tileMenuEnabled && !reordering && openPopup == null && cardPrompt == null
                 && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
             int position = focusedTilePosition();
@@ -1404,6 +1419,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** The start shared by reorder and edit-dock mode. False when there is nothing to move. */
     private boolean beginReorder() {
         if (adapter.movableCount() < 2) return false;
+        showDock();
         // Before the reload below: once it has dropped the empty slots, the dock row also shows grid apps.
         dockInSession = new HashSet<>();
         dockedAtStart = adapter.dockFilled();
@@ -1501,6 +1517,25 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             focusTile(0);
             Toast.makeText(this, R.string.dock_edit_pick_place, Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * Tile menu, Remove from dock: the app goes to the first place under the dock and the dock keeps one place fewer.
+     * That needs fill_dock off (otherwise a grid app would take the place at once), so it is switched off here.
+     */
+    private void removeFromDock(String key) {
+        List<String> keys = new ArrayList<>(adapter.movableKeys());
+        int docked = Math.min(adapter.dockFilled(), COLUMNS);
+        int at = keys.indexOf(key);
+        if (at < 0 || at >= docked || docked < 2) return;
+        keys.remove(at);
+        keys.add(docked - 1, key);
+        if (!Order.save(Order.file(this), new Order(Order.dockKey(dockApps), keys, docked - 1))) {
+            Toast.makeText(this, R.string.reorder_not_saved, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!fillDockLeavesSlots) Config.putTvOverride(this, "fill_dock", false);
+        recreate();
     }
 
     /** Puts the app at pos into dock place slot, and the app that was there where the chosen one was; then saves. */
@@ -1648,6 +1683,159 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 dimOthers();   // views that came into view or were rebound during the move
             }
         });
+    }
+
+    // ---- dock_mode: autohide and drawer -----------------------------------------------------------
+
+    /** config dock_mode: always, autohide or drawer (Config.DOCK_*). */
+    private String dockMode = Config.DOCK_ALWAYS;
+    private long dockHideMs = 5_000L;
+    /** The dock (the whole grid) is slid off the bottom of the screen. */
+    private boolean dockHidden;
+    /** The key whose down showed the dock: its up is swallowed too, so OK does not open the tile under it. */
+    private int swallowKeyUp = -1;
+    /** drawer: the ^ mark at the bottom while the dock is put away. */
+    private View drawerHint;
+    private final Runnable hideDockLater = () -> hideDock(true);
+
+    /** dock_title: the hero name is part of Home (GONE otherwise), so showing the dock brings it back. */
+    private boolean dockTitleShown;
+
+    private boolean dockHides() {
+        return !Config.DOCK_ALWAYS.equals(dockMode);
+    }
+
+    private void scheduleDockHide() {
+        root.removeCallbacks(hideDockLater);
+        if (dockHides() && !dockHidden && resumed) root.postDelayed(hideDockLater, dockHideMs);
+    }
+
+    private void addDrawerHint() {
+        ImageView mark = new ImageView(this);
+        mark.setImageResource(R.drawable.ic_drawer_up);
+        mark.setScaleType(ImageView.ScaleType.CENTER);
+        android.graphics.drawable.GradientDrawable pill = new android.graphics.drawable.GradientDrawable();
+        pill.setColor(0x40FFFFFF);
+        pill.setStroke(Math.round(density), 0x59FFFFFF);
+        pill.setCornerRadius(18 * density);
+        mark.setBackground(pill);
+        mark.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(Math.round(72 * density), Math.round(36 * density),
+                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        lp.bottomMargin = Math.round(28 * density);
+        mark.setVisibility(View.GONE);
+        root.addView(mark, lp);
+        drawerHint = mark;
+    }
+
+    /** Slides the dock and the grid away; waits instead while a menu, the library or reorder mode is open. */
+    private void hideDock(boolean animate) {
+        root.removeCallbacks(hideDockLater);
+        if (!dockHides() || dockHidden) return;
+        if (reordering || openPopup != null || appLibrary != null) {
+            scheduleDockHide();
+            return;
+        }
+        dockHidden = true;
+        float away = Math.max(root.getHeight(), getResources().getDisplayMetrics().heightPixels);
+        grid.animate().cancel();
+        glass.setVisibility(View.INVISIBLE);
+        if (dockTitleShown) hero.setVisibility(View.INVISIBLE);
+        if (ambientGlow) ambient.setVisibility(View.INVISIBLE);
+        if (animate && animations && !reducedMotion) {
+            grid.animate().translationY(away * 0.35f).alpha(0f).setDuration(240)
+                    .setInterpolator(new android.view.animation.AccelerateInterpolator(1.4f))
+                    .withEndAction(() -> grid.setTranslationY(away)).start();
+        } else {
+            grid.setAlpha(0f);
+            grid.setTranslationY(away);
+        }
+        if (drawerHint != null) {
+            drawerHint.setVisibility(View.VISIBLE);
+            drawerHint.setAlpha(0f);
+            drawerHint.animate().alpha(1f).setDuration(animate ? 300 : 0).start();
+        }
+    }
+
+    private void showDock() {
+        if (!dockHidden) return;
+        dockHidden = false;
+        grid.animate().cancel();
+        if (drawerHint != null) drawerHint.setVisibility(View.GONE);
+        Runnable shown = () -> {
+            if (dockHidden) return;
+            // The highlight was hidden while focus or scroll moved: snap it to the focused tile again.
+            int pos = focusedTilePosition();
+            View card = getCurrentFocus();
+            if (pos >= 0 && card != null) {
+                glassShown = false;
+                glass.setAlpha(0f);
+                onTileFocused(pos, card);
+            }
+            glass.setVisibility(View.VISIBLE);
+            if (dockTitleShown) hero.setVisibility(View.VISIBLE);
+            if (ambientGlow) ambient.setVisibility(View.VISIBLE);
+        };
+        if (animations && !reducedMotion) {
+            grid.setTranslationY(grid.getHeight() * 0.25f);
+            grid.animate().translationY(0f).alpha(1f).setDuration(260)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f))
+                    .withEndAction(() -> grid.postDelayed(shown, 120)).start();
+        } else {
+            grid.setTranslationY(0f);
+            grid.setAlpha(1f);
+            grid.post(shown);
+        }
+        scheduleDockHide();
+    }
+
+    /**
+     * dock_mode keys. Hidden: the arrows and OK on the hidden grid only bring the dock back (Down does it from the top
+     * bar too, where the other arrows still move between the buttons). Shown: Back puts it away again.
+     */
+    private boolean handleDockModeKey(KeyEvent event) {
+        if (!dockHides()) return false;
+        int code = event.getKeyCode();
+        boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+        if (!down && code == swallowKeyUp) {
+            swallowKeyUp = -1;
+            return true;
+        }
+        if (dockHidden) {
+            boolean ok = code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
+                    || code == KeyEvent.KEYCODE_NUMPAD_ENTER;
+            boolean arrow = code == KeyEvent.KEYCODE_DPAD_UP || code == KeyEvent.KEYCODE_DPAD_DOWN
+                    || code == KeyEvent.KEYCODE_DPAD_LEFT || code == KeyEvent.KEYCODE_DPAD_RIGHT;
+            if (!ok && !arrow) return false;
+            boolean inGrid = grid.hasFocus();
+            if (!inGrid && code != KeyEvent.KEYCODE_DPAD_DOWN) return false;
+            if (inGrid && code == KeyEvent.KEYCODE_DPAD_UP) {
+                // The header is on screen: Up goes straight to its buttons, the dock stays away.
+                if (down && event.getRepeatCount() == 0) {
+                    View settings = findViewById(R.id.btnSettings);
+                    if (settings != null && settings.getVisibility() == View.VISIBLE) settings.requestFocus();
+                }
+                return true;
+            }
+            if (down) {
+                if (event.getRepeatCount() == 0) {
+                    showDock();
+                    if (!inGrid) focusTile(Math.max(0, Math.min(lastFocused, COLUMNS - 1)));
+                }
+                swallowKeyUp = code;
+            }
+            return true;
+        }
+        boolean back = code == KeyEvent.KEYCODE_BACK || code == KeyEvent.KEYCODE_ESCAPE;
+        if (back && !reordering && openPopup == null && appLibrary == null && grid.hasFocus()) {
+            if (!down && !event.isCanceled()) {
+                grid.scrollToPosition(0);
+                focusTile(Math.max(0, Math.min(lastFocused, COLUMNS - 1)));
+                hideDock(true);
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -2144,7 +2332,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 handler.post(() -> {
                     if (showStats && stats != null && statsBg == bg) stats.setText(line);
                 });
-                if (statsBg == bg) bg.postDelayed(this, STATS_MS);
+                if (statsBg == bg) bg.postDelayed(this, statsMs);
             }
         });
     }
@@ -3509,6 +3697,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             boolean inDock = position < COLUMNS;
             addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
                     () -> startDockEditFor(key, inDock));
+        }
+        if (dockRow && !singleRow && position < Math.min(adapter.dockFilled(), COLUMNS) && adapter.dockFilled() > 1) {
+            addSettingsMenuRow(rows, popup, R.string.tile_remove_from_dock, () -> removeFromDock(key));
         }
         if (position < adapter.movableCount()) addSettingsMenuRow(rows, popup, R.string.tile_move, () -> {
             if (!beginReorder()) return;

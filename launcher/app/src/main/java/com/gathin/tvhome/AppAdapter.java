@@ -218,6 +218,9 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Map<String, String> appLabels, appBanners;
     /** Every app tile is its icon on a card tinted from that icon, never its banner (config.xml, uniform_tiles). */
     private final boolean uniformTiles;
+    /** name_size (sp), name_spacing (em x 100) and the name_weight typeface for the names under the tiles. */
+    private final int nameSize, nameSpacing;
+    private final android.graphics.Typeface nameFont;
     /** Packages drawn from their icon and name even when they have a banner (config.xml icon_tiles). */
     private final Set<String> iconTiles;
     private final List<Entry> items = new ArrayList<>();
@@ -248,6 +251,11 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.appLabels = cfg.appLabels;
         this.appBanners = cfg.appBanners;
         this.uniformTiles = cfg.uniformTiles;
+        this.nameSize = cfg.nameSize;
+        this.nameSpacing = cfg.nameSpacing;
+        android.graphics.Typeface medium = UiFont.get(ctx, R.string.font_medium);
+        this.nameFont = "regular".equals(cfg.nameWeight) ? UiFont.get(ctx, R.string.font_body)
+                : "bold".equals(cfg.nameWeight) ? android.graphics.Typeface.create(medium, android.graphics.Typeface.BOLD) : medium;
         // Tiles keep their identity across reload(), so a focused tile stays on its app instead of
         // its view being rebound to whatever app now sits in that slot.
         setHasStableIds(true);
@@ -425,6 +433,11 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewGroup.MarginLayoutParams nameLp = (ViewGroup.MarginLayoutParams) name.getLayoutParams();
         nameLp.width = w;
         nameLp.topMargin = h + Math.round((dockRow ? 7 : 4) * density);
+        TextView nameText = (TextView) name;
+        nameText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, nameSize);
+        nameText.setLetterSpacing(nameSpacing / 100f);
+        if (nameFont != null) nameText.setTypeface(nameFont);
+        nameLp.height = Math.max(nameLp.height, Math.round(nameSize * 1.35f * parent.getResources().getDisplayMetrics().scaledDensity));
         if (!dockRow) {
             // Compact spacing (COMPACT_ITEM_EXTRA_DP): 4dp item padding and a 20dp name instead of 8dp and 22dp.
             nameLp.height = Math.round(20 * density);
