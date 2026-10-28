@@ -196,6 +196,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final boolean fillDock;
     /** Dock apps found at the last reload, and the empty slots after them. */
     private int docked, emptySlots;
+    /** Width of one grid column (px), for moving a short dock to the middle of its row. */
+    private float cellWidth;
     /** Never shown as tiles (res/values/config.xml, hidden_apps). */
     private final Set<String> hidden;
     /** Apps pre-seeded into the App library's "added" set (config.xml library_apps); empty by default. */
@@ -343,7 +345,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         docked = 0;
         while (docked < fresh.size() && isDocked(fresh.get(docked))) docked++;
-        emptySlots = dockRow && !reordering ? DockSlots.empty(docked, dockSize, fresh.size(), fillDock) : 0;
+        emptySlots = dockRow && !reordering ? DockSlots.empty(docked, dockSize, fresh.size(), fillDock,
+                savedDocked == 0) : 0;
         for (int i = 0; i < emptySlots; i++) {
             fresh.add(docked + i, new Entry(Entry.EMPTY, "", new ComponentName(ctx, "empty-dock-slot-" + i),
                     null, null, null, 0));
@@ -447,6 +450,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         name.setLayoutParams(nameLp);
         // A sideways row would stretch a match_parent item across the whole screen: give it a grid column's width.
         if (singleRow) v.getLayoutParams().width = inner / dockSize;
+        cellWidth = inner / (float) dockSize;
         if (uniformTiles) {
             // tvOS-style tile: a large centred mark, no caption inside the card.
             View icon = v.findViewById(R.id.icon);
@@ -473,6 +477,17 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (isLibraryAt(position)) return;
         Holder h = (Holder) holder;
         Entry e = items.get(position);
+        // A dock with free places sits in the middle of its row; its band shrinks to it (DockDecoration).
+        float shift = dockRow && !singleRow && position < dockSize
+                ? DockSlots.centreShift(dockFilled(), dockSize, cellWidth) : 0f;
+        if (h.itemView.getTranslationX() != shift) {
+            h.itemView.setTranslationX(shift);
+            // The highlight was placed before the tile moved: place it again once the row is laid out.
+            if (h.card.isFocused()) h.card.post(() -> {
+                int at = h.getBindingAdapterPosition();
+                if (h.card.isFocused() && at >= 0) listener.onTileFocused(at, h.card);
+            });
+        }
         if (e.kind == Entry.EMPTY) {
             // A free dock slot keeps its place in the row and the band, but shows nothing and takes no focus.
             h.card.setVisibility(View.INVISIBLE);
@@ -664,6 +679,10 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /** Dock slots that hold an app: the whole dock unless some slots are empty. */
+    boolean isEmptySlot(int position) {
+        return position >= 0 && position < items.size() && items.get(position).kind == Entry.EMPTY;
+    }
+
     int dockFilled() {
         return emptySlots > 0 ? docked : dockSize;
     }

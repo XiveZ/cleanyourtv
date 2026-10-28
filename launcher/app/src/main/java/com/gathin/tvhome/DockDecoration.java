@@ -94,10 +94,12 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
             View child = parent.getChildAt(i);
             int pos = parent.getChildAdapterPosition(child);
             if (pos < 0 || (!bandAll && pos >= dockSize)) continue;
+            // Free dock places are not part of the dock: the band fits the apps, and no apps means no band.
+            if (parent.getAdapter() instanceof AppAdapter && ((AppAdapter) parent.getAdapter()).isEmptySlot(pos)) continue;
             RecyclerView.ViewHolder vh = parent.getChildViewHolder(child);
             View card = vh instanceof AppAdapter.Holder ? ((AppAdapter.Holder) vh).card : child.findViewById(R.id.card);
             if (card == null) continue;
-            float l = child.getLeft() + card.getLeft();
+            float l = child.getLeft() + card.getLeft() + child.getTranslationX();
             float t = child.getTop() + card.getTop() + child.getTranslationY();
             float r = l + card.getWidth();
             float b = t + card.getHeight();

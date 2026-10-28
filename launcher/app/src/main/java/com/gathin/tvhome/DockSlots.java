@@ -17,7 +17,16 @@ final class DockSlots {
      * dock app is installed (the first row fills so Home still has a dock) or when nothing follows.
      */
     static int empty(int docked, int dockSize, int tiles, boolean fill) {
-        if (fill || docked <= 0 || docked >= dockSize || tiles <= docked) return 0;
+        return empty(docked, dockSize, tiles, fill, false);
+    }
+
+    /**
+     * {@code emptied}: the owner took every app out of the dock (a saved dock size of 0), so with fill_dock off the
+     * whole row stays empty and Home shows no dock until Down opens the grid.
+     */
+    static int empty(int docked, int dockSize, int tiles, boolean fill, boolean emptied) {
+        if (fill || docked >= dockSize || tiles <= docked) return 0;
+        if (docked <= 0) return emptied ? dockSize : 0;
         return dockSize - docked;
     }
 
@@ -47,6 +56,15 @@ final class DockSlots {
 
     /** A position focus can land on: an empty slot sends it to the last dock app. */
     static int focusable(int position, int docked, int empty) {
-        return empty > 0 && position >= docked && position < docked + empty ? docked - 1 : position;
+        if (empty <= 0 || position < docked || position >= docked + empty) return position;
+        return docked > 0 ? docked - 1 : docked + empty;   // an empty dock: the first grid tile
+    }
+
+    /**
+     * How far a dock of {@code filled} apps in {@code dockSize} places moves right to sit in the middle of the row:
+     * half the free places. A full or empty dock stays where it is.
+     */
+    static float centreShift(int filled, int dockSize, float cellWidth) {
+        return filled > 0 && filled < dockSize ? (dockSize - filled) * cellWidth / 2f : 0f;
     }
 }

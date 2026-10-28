@@ -1024,7 +1024,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return;
         }
         restartIdleClock();
-        if (dockHides()) hideDock(false);
+        if (gridHides()) hideDock(false);
         promptsPaused = false;
         if (grid.getAdapter() == null) grid.setAdapter(adapter);   // dropped by onTrimMemory
         switch (tileRefresh.onResume(packagesChangedSinceRebuild())) {
@@ -1189,6 +1189,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         lastFocusedKey = returnKey;
         lastFocused = returnSlot;
         packageSequence = currentPackageSequence(packageSequence);
+        if (dockEmpty() != dockWasEmpty) {
+            dockWasEmpty = dockEmpty();
+            if (dockWasEmpty && resumed) hideDock(false);
+        }
     }
 
     /**
@@ -1527,7 +1531,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         List<String> keys = new ArrayList<>(adapter.movableKeys());
         int docked = Math.min(adapter.dockFilled(), COLUMNS);
         int at = keys.indexOf(key);
-        if (at < 0 || at >= docked || docked < 2) return;
+        if (at < 0 || at >= docked) return;
         keys.remove(at);
         keys.add(docked - 1, key);
         if (!Order.save(Order.file(this), new Order(Order.dockKey(dockApps), keys, docked - 1))) {
@@ -1705,6 +1709,19 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         return !Config.DOCK_ALWAYS.equals(dockMode);
     }
 
+    /** Every app was taken out of the dock: Home shows no dock, and Down opens the grid with all the apps. */
+    private boolean dockEmpty() {
+        return dockRow && !singleRow && adapter != null && adapter.dockFilled() == 0;
+    }
+
+    /** The grid can be put away: a dock_mode that hides it, or an empty dock (like Android's app drawer). */
+    private boolean gridHides() {
+        return dockHides() || dockEmpty();
+    }
+
+    /** dockEmpty() at the last tile rebuild: becoming empty puts the grid away at once. */
+    private boolean dockWasEmpty;
+
     private void scheduleDockHide() {
         root.removeCallbacks(hideDockLater);
         if (dockHides() && !dockHidden && resumed) root.postDelayed(hideDockLater, dockHideMs);
@@ -1731,7 +1748,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Slides the dock and the grid away; waits instead while a menu, the library or reorder mode is open. */
     private void hideDock(boolean animate) {
         root.removeCallbacks(hideDockLater);
-        if (!dockHides() || dockHidden) return;
+        if (!gridHides() || dockHidden) return;
         if (reordering || openPopup != null || appLibrary != null) {
             scheduleDockHide();
             return;
@@ -1794,7 +1811,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * bar too, where the other arrows still move between the buttons). Shown: Back puts it away again.
      */
     private boolean handleDockModeKey(KeyEvent event) {
-        if (!dockHides()) return false;
+        if (!gridHides()) return false;
         int code = event.getKeyCode();
         boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         if (!down && code == swallowKeyUp) {
@@ -1820,7 +1837,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (down) {
                 if (event.getRepeatCount() == 0) {
                     showDock();
-                    if (!inGrid) focusTile(Math.max(0, Math.min(lastFocused, COLUMNS - 1)));
+                    if (dockEmpty()) {
+                        if (!inGrid || lastFocused < COLUMNS) focusTile(COLUMNS);   // the first app of the grid
+                    } else if (!inGrid) {
+                        focusTile(Math.max(0, Math.min(lastFocused, COLUMNS - 1)));
+                    }
                 }
                 swallowKeyUp = code;
             }
@@ -1829,8 +1850,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         boolean back = code == KeyEvent.KEYCODE_BACK || code == KeyEvent.KEYCODE_ESCAPE;
         if (back && !reordering && openPopup == null && appLibrary == null && grid.hasFocus()) {
             if (!down && !event.isCanceled()) {
-                grid.scrollToPosition(0);
-                focusTile(Math.max(0, Math.min(lastFocused, COLUMNS - 1)));
+                if (!dockEmpty()) {
+                    grid.scrollToPosition(0);
+                    focusTile(Math.max(0, Math.min(lastFocused, COLUMNS - 1)));
+                }
                 hideDock(true);
             }
             return true;
@@ -1892,6 +1915,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         Rect r = tileRect;
         r.set(0, 0, card.getWidth(), card.getHeight());
         root.offsetDescendantRectToMyCoords(card, r);
+        r.offset(Math.round(((View) card.getParent()).getTranslationX()), 0);   // a short dock sits in the middle
         float pad = 6f * density;        // matches GlassView's glow inset
         float scale = adapter.focusScale();
         float w = card.getWidth() * scale + 2 * pad;
@@ -3698,7 +3722,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
                     () -> startDockEditFor(key, inDock));
         }
-        if (dockRow && !singleRow && position < Math.min(adapter.dockFilled(), COLUMNS) && adapter.dockFilled() > 1) {
+        if (dockRow && !singleRow && position < Math.min(adapter.dockFilled(), COLUMNS)) {
             addSettingsMenuRow(rows, popup, R.string.tile_remove_from_dock, () -> removeFromDock(key));
         }
         if (position < adapter.movableCount()) addSettingsMenuRow(rows, popup, R.string.tile_move, () -> {

@@ -86,4 +86,28 @@ public class DockSlotsTest {
         assertEquals(4, DockSlots.focusable(4, 3, 1));
         assertEquals(3, DockSlots.focusable(3, 4, 0));
     }
+
+    @Test
+    public void aDockTheOwnerEmptiedStaysEmptyInsteadOfFillingWithGridApps() {
+        assertEquals(4, DockSlots.empty(0, 4, 20, false, true));
+        // Nothing saved as emptied (no dock app installed): the first row still fills.
+        assertEquals(0, DockSlots.empty(0, 4, 20, false, false));
+        // fill_dock on fills it either way.
+        assertEquals(0, DockSlots.empty(0, 4, 20, true, true));
+    }
+
+    @Test
+    public void focusOnAnEmptyDockGoesToTheFirstGridTile() {
+        assertEquals(4, DockSlots.focusable(0, 0, 4));
+        assertEquals(4, DockSlots.focusable(3, 0, 4));
+    }
+
+    @Test
+    public void aShortDockMovesToTheMiddleByHalfTheFreePlaces() {
+        // 6 of 7 places: half a cell to the right; 3 of 7: two cells.
+        assertEquals(50f, DockSlots.centreShift(6, 7, 100f), 0.001f);
+        assertEquals(200f, DockSlots.centreShift(3, 7, 100f), 0.001f);
+        assertEquals(0f, DockSlots.centreShift(7, 7, 100f), 0.001f);
+        assertEquals(0f, DockSlots.centreShift(0, 7, 100f), 0.001f);
+    }
 }
