@@ -83,6 +83,13 @@ final class ExtraSettings {
         bool("show_inputs_pill", R.string.xs_inputs_pill, c.showInputsPill);
         bool("show_astro", R.string.xs_astro, c.showAstro);
         bool("show_new_year", R.string.xs_new_year_on, c.showNewYear);
+        option("new_year_style", R.string.xs_new_year_style, c.newYearStyle, NewYear.STYLES, v -> text(styleName((String) v)));
+        option("new_year_target", R.string.xs_new_year_target, c.newYearTarget, NewYear.TARGETS, v -> text(
+                "christmas".equals(v) ? R.string.xs_target_christmas
+                        : "orthodox_christmas".equals(v) ? R.string.xs_target_orthodox : R.string.xs_target_new_year));
+        option("new_year_text", R.string.xs_new_year_text, c.newYearText, new Object[]{"short", "long", "soon"}, v -> text(
+                "long".equals(v) ? R.string.new_year_title_long : "soon".equals(v) ? R.string.new_year_title_soon
+                        : R.string.new_year_until));
         option("widget_gap", R.string.xs_widget_gap, c.widgetGap, new Object[]{0, 4, 8, 12, 16, 24, 32}, v -> v + " dp");
         bool("widget_backdrop", R.string.xs_widget_backdrop, c.widgetBackdrop);
         // Read when opened: the dialog may have changed it since this screen was built.
@@ -136,6 +143,16 @@ final class ExtraSettings {
 
     private interface Label {
         String of(Object value);
+    }
+
+    private static int styleName(String style) {
+        switch (style) {
+            case "star": return R.string.xs_style_star;
+            case "pavuk": return R.string.xs_style_pavuk;
+            case "didukh": return R.string.xs_style_didukh;
+            case "snow": return R.string.xs_style_snow;
+            default: return R.string.xs_style_tree;
+        }
     }
 
     private String text(int id) {

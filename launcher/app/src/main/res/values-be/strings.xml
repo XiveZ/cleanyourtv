@@ -267,4 +267,21 @@
         <item quantity="many">%d дзён</item>
         <item quantity="other">%d дня</item>
     </plurals>
+    <string name="xs_new_year_style">Сімвал</string>
+    <string name="xs_style_tree">Ялінка</string>
+    <string name="xs_style_star">Калядная зорка (BY, UA, PL)</string>
+    <string name="xs_style_pavuk">Саламяны павук (BY, PL, LT, LV, UA)</string>
+    <string name="xs_style_didukh">Дзідух (UA)</string>
+    <string name="xs_style_snow">Снегапад</string>
+    <string name="xs_new_year_target">Адлік да</string>
+    <string name="xs_target_new_year">Новага года (1.01)</string>
+    <string name="xs_target_christmas">Каталіцкіх Калядаў (25.12)</string>
+    <string name="xs_target_orthodox">Праваслаўных Калядаў (7.01)</string>
+    <string name="xs_new_year_text">Надпіс</string>
+    <string name="new_year_title_long">ДА НОВАГА ГОДА ЗАСТАЛОСЯ</string>
+    <string name="new_year_title_soon">ХУТКА НОВЫ ГОД!</string>
+    <string name="new_year_title_xmas">ДА КАЛЯДАЎ</string>
+    <string name="new_year_title_long_xmas">ДА КАЛЯДАЎ ЗАСТАЛОСЯ</string>
+    <string name="new_year_title_soon_xmas">ХУТКА КАЛЯДЫ!</string>
+    <string name="new_year_happy_xmas">Вясёлых Калядаў!</string>
 </resources>

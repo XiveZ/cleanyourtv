@@ -80,6 +80,8 @@ final class Config {
     boolean showAstro;
     /** show_new_year: the fir tree and the countdown to 1 January (NewYearView). */
     boolean showNewYear;
+    /** new_year_style (NewYear.STYLES), new_year_target (NewYear.TARGETS), new_year_text (short, long, soon). */
+    String newYearStyle = "tree", newYearTarget = "new_year", newYearText = "short";
     /** widget_gap (dp) between the header widgets, widget_backdrop a dark pill behind each, widget_layout their places. */
     int widgetGap = 8;
     boolean widgetBackdrop;
@@ -726,6 +728,9 @@ final class Config {
             config.hideGridUnderDock = bool(json, "hide_grid_under_dock", false);
             config.showAstro = bool(json, "show_astro", false);
             config.showNewYear = bool(json, "show_new_year", false);
+            config.newYearStyle = NewYear.style(string(json, "new_year_style", "tree"));
+            config.newYearTarget = string(json, "new_year_target", "new_year");
+            config.newYearText = string(json, "new_year_text", "short");
             config.widgetGap = integer(json, "widget_gap", 8, 0, 48);
             config.widgetBackdrop = bool(json, "widget_backdrop", false);
             config.widgetLayout = string(json, "widget_layout", "");

@@ -1,7 +1,7 @@
 package com.gathin.tvhome;
 
 import java.time.Duration;
-import java.time.LocalDate;
+import java.time.MonthDay;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Objects;
@@ -10,10 +10,32 @@ import java.util.Objects;
 final class NewYear {
     private NewYear() { }
 
+    static final String[] TARGETS = {"new_year", "christmas", "orthodox_christmas"};
+    /** tree, star (the carollers' star), pavuk (the straw "spider" of BY, PL, LT, LV, UA), didukh (UA), snow. */
+    static final String[] STYLES = {"tree", "star", "pavuk", "didukh", "snow"};
+
     static long secondsLeft(LocalDateTime now) {
-        if (now.getMonthValue() == 1 && now.getDayOfMonth() == 1) return 0;
-        LocalDateTime next = LocalDate.of(now.getYear() + 1, 1, 1).atStartOfDay();
+        return secondsLeft(now, MonthDay.of(1, 1));
+    }
+
+    /** Seconds to midnight starting {@code day}; the whole of that day counts as zero. */
+    static long secondsLeft(LocalDateTime now, MonthDay day) {
+        if (MonthDay.from(now).equals(day)) return 0;
+        LocalDateTime next = day.atYear(now.getYear()).atStartOfDay();
+        if (!next.isAfter(now)) next = day.atYear(now.getYear() + 1).atStartOfDay();
         return Duration.between(now, next).getSeconds();
+    }
+
+    /** new_year_target: 1 January, 25 December (Christmas) or 7 January (Orthodox Christmas). */
+    static MonthDay target(String name) {
+        if ("christmas".equals(name)) return MonthDay.of(12, 25);
+        if ("orthodox_christmas".equals(name)) return MonthDay.of(1, 7);
+        return MonthDay.of(1, 1);
+    }
+
+    static String style(String name) {
+        for (String s : STYLES) if (s.equals(name)) return s;
+        return "tree";
     }
 
     /** Days, and the rest as "HH:MM:SS". */

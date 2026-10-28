@@ -116,4 +116,21 @@
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
+    <string name="xs_new_year_style">Symbol</string>
+    <string name="xs_style_tree">Fir tree</string>
+    <string name="xs_style_star">Carollers\' star (BY, UA, PL)</string>
+    <string name="xs_style_pavuk">Straw pavuk (BY, PL, LT, LV, UA)</string>
+    <string name="xs_style_didukh">Didukh (UA)</string>
+    <string name="xs_style_snow">Snowfall</string>
+    <string name="xs_new_year_target">Count down to</string>
+    <string name="xs_target_new_year">New Year (1 Jan)</string>
+    <string name="xs_target_christmas">Christmas (25 Dec)</string>
+    <string name="xs_target_orthodox">Orthodox Christmas (7 Jan)</string>
+    <string name="xs_new_year_text">Wording</string>
+    <string name="new_year_title_long">TIME LEFT TILL THE NEW YEAR</string>
+    <string name="new_year_title_soon">THE NEW YEAR IS COMING!</string>
+    <string name="new_year_title_xmas">UNTIL CHRISTMAS</string>
+    <string name="new_year_title_long_xmas">TIME LEFT TILL CHRISTMAS</string>
+    <string name="new_year_title_soon_xmas">CHRISTMAS IS COMING!</string>
+    <string name="new_year_happy_xmas">Merry Christmas!</string>
 </resources>

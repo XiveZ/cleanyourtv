@@ -26,4 +26,27 @@ public class NewYearTest {
         assertEquals(new NewYear.Left(64, "12:30:15"), NewYear.split(64L * 86400 + 12 * 3600 + 30 * 60 + 15));
         assertEquals(new NewYear.Left(0, "00:00:01"), NewYear.split(1));
     }
+
+    @Test
+    public void theCountdownCanRunToEitherChristmas() {
+        java.time.MonthDay catholic = java.time.MonthDay.of(12, 25), orthodox = java.time.MonthDay.of(1, 7);
+        LocalDateTime now = LocalDateTime.of(2026, 10, 28, 12, 0, 0);
+        assertEquals(57L * 86400 + 12 * 3600, NewYear.secondsLeft(now, catholic));
+        assertEquals(70L * 86400 + 12 * 3600, NewYear.secondsLeft(now, orthodox));
+        // On the day itself: zero all day; the day after, a year to go.
+        assertEquals(0, NewYear.secondsLeft(LocalDateTime.of(2026, 12, 25, 18, 0), catholic));
+        assertEquals(0, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 7, 9, 0), orthodox));
+        assertEquals(364L * 86400, NewYear.secondsLeft(LocalDateTime.of(2027, 1, 8, 0, 0), orthodox));
+    }
+
+    @Test
+    public void theTargetAndStyleNamesAreReadSafely() {
+        assertEquals(java.time.MonthDay.of(1, 1), NewYear.target("new_year"));
+        assertEquals(java.time.MonthDay.of(12, 25), NewYear.target("christmas"));
+        assertEquals(java.time.MonthDay.of(1, 7), NewYear.target("orthodox_christmas"));
+        assertEquals(java.time.MonthDay.of(1, 1), NewYear.target("bogus"));
+        assertEquals("pavuk", NewYear.style("pavuk"));
+        assertEquals("tree", NewYear.style("bogus"));
+        assertEquals("tree", NewYear.style(null));
+    }
 }
