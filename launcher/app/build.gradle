@@ -45,4 +45,6 @@ dependencies {
     implementation 'androidx.dynamicanimation:dynamicanimation:1.0.0'
     // Test only (never in the APK): plain JVM tests for the module card validators, src/test.
     testImplementation 'junit:junit:4.13.2'
+    // Real org.json for tests of the on-TV choices (android.jar only has stubs).
+    testImplementation 'org.json:json:20231013'
 }

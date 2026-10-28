@@ -756,8 +756,7 @@ final class Config {
             }
             return merged;
         } catch (JSONException e) {
-            Log.w(TAG, "tv_overrides is not valid JSON; ignored");
-            return json;
+            return json;   // broken choices are ignored; the theme still applies
         }
     }
 
