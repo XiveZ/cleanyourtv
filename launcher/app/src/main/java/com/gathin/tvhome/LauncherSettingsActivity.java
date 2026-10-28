@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +34,7 @@ public final class LauncherSettingsActivity extends Activity {
     private static final int[] DOCK_OPACITIES = {100, 70, 50, 30};
     private final TextView[] dockChoices = new TextView[DOCK_OPACITIES.length];
     private TextView wallpaperChoice;
+    private ExtraSettings extraSettings;
     private TextView animationsChoice;
     private TextView advancedChoice;
     private TextView followThemeChoice;
@@ -109,7 +109,14 @@ public final class LauncherSettingsActivity extends Activity {
             reverseRow(dockChoices);
         }
         wallpaperChoice = findViewById(R.id.wallpaperChoice);
-        wallpaperChoice.setOnClickListener(v -> showWallpaperPicker());
+        extraSettings = new ExtraSettings(this, findViewById(R.id.extraSettings), () -> {
+            changed();
+            refresh();
+        }, () -> {
+            setResult(RESULT_OK, new Intent().putExtra(EXTRA_CARDS, true));
+            finish();
+        });
+        wallpaperChoice.setOnClickListener(v -> extraSettings.showGallery());
         animationsChoice = findViewById(R.id.animationsChoice);
         animationsChoice.setOnClickListener(v -> {
             animations = !animations;
@@ -137,10 +144,7 @@ public final class LauncherSettingsActivity extends Activity {
             openOnStartChoice.setVisibility(View.VISIBLE);
             openOnStartChoice.setOnClickListener(v -> showOpenOnStartPicker());
         }
-        new ExtraSettings(this, findViewById(R.id.extraSettings), () -> setResult(RESULT_OK), () -> {
-            setResult(RESULT_OK, new Intent().putExtra(EXTRA_CARDS, true));
-            finish();
-        }).build();
+        extraSettings.build();
         followThemeChoice = findViewById(R.id.followThemeChoice);
         followThemeChoice.setOnClickListener(v -> {
             if (!hasOnTvChoices()) return;
@@ -157,6 +161,10 @@ public final class LauncherSettingsActivity extends Activity {
             recreate();   // the extra rows show the theme's values again
         });
         findViewById(R.id.defaultHomeChoice).setOnClickListener(v -> {
+            // The system's Default home screen page is see-through on some TVs (Android 14's permission
+            // controller): with these rows behind it, neither is readable. Show plain black behind it instead.
+            getWindow().getDecorView().setBackgroundColor(0xFF000000);
+            findViewById(android.R.id.content).setVisibility(View.INVISIBLE);
             Toast.makeText(this, R.string.home_settings_help, Toast.LENGTH_LONG).show();
             open(new Intent(Settings.ACTION_HOME_SETTINGS));
         });
@@ -167,46 +175,20 @@ public final class LauncherSettingsActivity extends Activity {
         else columnChoices[Math.max(0, Math.min(columns - 4, 3))].requestFocus();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        View content = findViewById(android.R.id.content);
+        if (content.getVisibility() != View.VISIBLE) {
+            content.setVisibility(View.VISIBLE);
+            findViewById(R.id.defaultHomeChoice).requestFocus();   // hiding the rows dropped the focus
+        }
+    }
+
     private void reverseRow(TextView[] views) {
         LinearLayout row = (LinearLayout) views[0].getParent();
         row.removeAllViews();
         for (int i = views.length - 1; i >= 0; i--) row.addView(views[i]);
-    }
-
-    private void showWallpaperPicker() {
-        File dir = Config.dir(this);
-        List<File> images = new java.util.ArrayList<>(WallpaperRotation.images(
-                dir == null ? null : new File(dir, "wallpapers")));
-        // A theme with a single wallpaper.jpg offers that picture too (Config maps the choice back to it).
-        File single = dir == null ? null : new File(dir, Config.WALLPAPER_NAME);
-        if (single != null && single.isFile()) images.add(0, single);
-        String[] labels = new String[images.size() + 1];
-        for (int i = 0; i < images.size(); i++) labels[i] = images.get(i).getName();
-        labels[images.size()] = getString(R.string.wallpaper_none);
-        String current = choices.getString(Config.WALLPAPER_CHOICE_KEY, null);
-        int checked = "none".equals(current) ? images.size()
-                : indexOf(images, current);
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.wallpaper_label)
-                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
-                    dialog.dismiss();
-                    if (which == images.size()) {
-                        choices.edit().putString(Config.WALLPAPER_CHOICE_KEY, "none").apply();
-                    } else {
-                        choices.edit().putString(Config.WALLPAPER_CHOICE_KEY,
-                                images.get(which).getName()).apply();
-                    }
-                    changed();
-                    Toast.makeText(this, R.string.wallpaper_applied, Toast.LENGTH_SHORT).show();
-                    refresh();
-                })
-                .setNeutralButton(R.string.wallpaper_theme_default, (dialog, which) -> {
-                    choices.edit().remove(Config.WALLPAPER_CHOICE_KEY).apply();
-                    changed();
-                    refresh();
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
     }
 
     /** Off, then every app with a TV entry point by name. Saved at once; it is read on the next boot. */
@@ -255,14 +237,6 @@ public final class LauncherSettingsActivity extends Activity {
         } catch (PackageManager.NameNotFoundException e) {
             return pkg;
         }
-    }
-
-    private static int indexOf(List<File> images, String name) {
-        if (name == null) return -1;
-        for (int i = 0; i < images.size(); i++) {
-            if (images.get(i).getName().equals(name)) return i;
-        }
-        return -1;
     }
 
     /**

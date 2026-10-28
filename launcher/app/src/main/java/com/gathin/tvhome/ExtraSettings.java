@@ -51,7 +51,6 @@ final class ExtraSettings {
     void build() {
         Config c = config;
         section(R.string.xs_section_wallpaper);
-        action(R.string.xs_wallpaper_gallery, this::showGallery);
         option("wallpaper_rotation_minutes", R.string.xs_wallpaper_every, c.wallpaperRotationMinutes,
                 new Object[]{0, 5, 15, 30, 60, 120, 180, 360, 720, 1440}, this::minutes);
         bool("wallpaper_align", R.string.xs_wallpaper_align, c.wallpaperAlign);
@@ -68,6 +67,7 @@ final class ExtraSettings {
                         : Config.DOCK_DRAWER.equals(v) ? R.string.xs_dock_drawer : R.string.xs_dock_always));
         option("dock_hide_seconds", R.string.xs_dock_hide_after, c.dockHideSeconds,
                 new Object[]{3, 5, 10, 15, 30, 60, 120}, this::seconds);
+        bool("hide_grid_under_dock", R.string.xs_hide_grid, c.hideGridUnderDock);
         bool("fill_dock", R.string.xs_fill_dock, c.fillDock);
         bool("single_row", R.string.xs_single_row, c.singleRow);
         bool("dock_band", R.string.xs_dock_band, c.dockBand);
@@ -220,7 +220,7 @@ final class ExtraSettings {
     // ---- wallpaper gallery -----------------------------------------------------------------------
 
     /** Every picture of the theme as a thumbnail; OK puts that one on Home (the same choice as the Wallpaper row). */
-    private void showGallery() {
+    void showGallery() {
         File dir = Config.dir(activity);
         List<File> images = new ArrayList<>(WallpaperRotation.images(dir == null ? null : new File(dir, "wallpapers")));
         File single = dir == null ? null : new File(dir, Config.WALLPAPER_NAME);
@@ -246,6 +246,11 @@ final class ExtraSettings {
         name.setTextSize(15);
         name.setPadding(0, dp(4), 0, dp(12));
         page.addView(name);
+        LinearLayout choices = new LinearLayout(activity);
+        choices.setOrientation(LinearLayout.HORIZONTAL);
+        choices.addView(galleryButton(R.string.wallpaper_theme_default, dialog, null));
+        choices.addView(galleryButton(R.string.wallpaper_none, dialog, WallpaperRotation.CHOICE_NONE));
+        page.addView(choices);
         RecyclerView list = new RecyclerView(activity);
         list.setLayoutManager(new GridLayoutManager(activity, 4));
         list.setClipToPadding(false);
@@ -330,6 +335,24 @@ final class ExtraSettings {
                 if (h != null) h.itemView.requestFocus();
             });
         });
+    }
+
+    /** A row above the thumbnails: back to the theme's rotation (null) or no wallpaper. */
+    private TextView galleryButton(int title, Dialog dialog, String choice) {
+        TextView b = (TextView) LayoutInflater.from(activity).inflate(R.layout.item_settings_option, box, false);
+        b.setText(title);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(52), 1f);
+        lp.setMargins(dp(8), 0, dp(8), dp(10));
+        b.setLayoutParams(lp);
+        b.setOnClickListener(v -> {
+            SharedPreferences.Editor e = activity.getSharedPreferences(Config.SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
+            if (choice == null) e.remove(Config.WALLPAPER_CHOICE_KEY);
+            else e.putString(Config.WALLPAPER_CHOICE_KEY, choice);
+            e.apply();
+            changed.run();
+            dialog.dismiss();
+        });
+        return b;
     }
 
     /** A small copy of the picture, about {@code width} pixels wide; null when it cannot be read. */

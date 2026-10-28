@@ -196,6 +196,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final boolean fillDock;
     /** Dock apps found at the last reload, and the empty slots after them. */
     private int docked, emptySlots;
+    /** hide_grid_under_dock: the rows under the dock are out of sight (focus is on the dock). */
+    private boolean gridAway;
     /** Width of one grid column (px), for moving a short dock to the middle of its row. */
     private float cellWidth;
     /** Never shown as tiles (res/values/config.xml, hidden_apps). */
@@ -474,6 +476,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        holder.itemView.setAlpha(gridAway && position >= dockSize ? 0f : 1f);
         if (isLibraryAt(position)) return;
         Holder h = (Holder) holder;
         Entry e = items.get(position);
@@ -679,6 +682,19 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /** Dock slots that hold an app: the whole dock unless some slots are empty. */
+    /** Fades the rows under the dock out (away) or back in; rows bound later follow onBindViewHolder. */
+    void setGridAway(boolean away, RecyclerView grid) {
+        if (gridAway == away) return;
+        gridAway = away;
+        for (int i = 0; i < grid.getChildCount(); i++) {
+            View child = grid.getChildAt(i);
+            if (grid.getChildAdapterPosition(child) < dockSize) continue;
+            child.animate().cancel();
+            if (animations && !reducedMotion) child.animate().alpha(away ? 0f : 1f).setDuration(away ? 160 : 220).start();
+            else child.setAlpha(away ? 0f : 1f);
+        }
+    }
+
     boolean isEmptySlot(int position) {
         return position >= 0 && position < items.size() && items.get(position).kind == Entry.EMPTY;
     }

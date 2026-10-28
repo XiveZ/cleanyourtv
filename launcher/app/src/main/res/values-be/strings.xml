@@ -150,7 +150,6 @@
     <!-- Extra Launcher settings, dock modes, Remove from dock (local). -->
     <string name="tile_remove_from_dock">Прыбраць з панэлі</string>
     <string name="xs_section_wallpaper">Шпалеры</string>
-    <string name="xs_wallpaper_gallery">Праглядзець шпалеры…</string>
     <string name="xs_wallpaper_every">Мяняць шпалеры кожныя</string>
     <string name="xs_wallpaper_align">Мяняць па гадзінніку (19:00, 20:00…)</string>
     <string name="xs_wallpaper_order">Парадак</string>
@@ -214,4 +213,5 @@
     <string name="xs_addons_manage">Карткі модуляў (аддоны)…</string>
     <string name="xs_addons_on">Шукаць карткі аддонаў</string>
     <string name="xs_addons_hint">Аддоны — маленькія праграмы, якія дадаюць картку на Home (надвор\'е, сусветны гадзіннік, таймер сну…). Зараз усталявана: %1$d. Яны збіраюцца і ўсталёўваюцца з камп\'ютара, з тэчкі addons у рэпазіторыі.</string>
+    <string name="xs_hide_grid">Хаваць праграмы пад панэллю («Уніз» паказвае)</string>
 </resources>
