@@ -452,6 +452,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         liveTvPkg = cfg.liveTvPackage;
         idleClockMs = cfg.homeIdleClockMinutes * MINUTE_MS;
         statsMs = cfg.statsRefreshSeconds * 1000L;
+        hideGridUnderDock = cfg.hideGridUnderDock;
         dockMode = cfg.dockMode;
         dockHideMs = cfg.dockHideSeconds * 1000L;
         bootToLiveTv = cfg.bootToLiveTv;
@@ -1434,6 +1435,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean beginReorder() {
         if (adapter.movableCount() < 2) return false;
         showDock();
+        adapter.setGridAway(false, grid);
         // Before the reload below: once it has dropped the empty slots, the dock row also shows grid apps.
         dockInSession = new HashSet<>();
         dockedAtStart = adapter.dockFilled();
@@ -1712,6 +1714,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private View drawerHint;
     private final Runnable hideDockLater = () -> hideDock(true);
 
+    /** hide_grid_under_dock: see Config. */
+    private boolean hideGridUnderDock;
+
     /** dock_title: the hero name is part of Home (GONE otherwise), so showing the dock brings it back. */
     private boolean dockTitleShown;
 
@@ -1909,10 +1914,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         appLibrary.show();
     }
 
+    /** advanced_effects lifts a focused grid tile 4dp; a dock tile grows in place (#2135). The highlight follows. */
+    static float glassLiftPx(boolean advancedEffects, boolean dockTile, float density) {
+        return advancedEffects && !dockTile ? 4f * density : 0f;
+    }
+
     @Override
     public void onTileFocused(int position, View card) {
         lastFocused = position;
         lastFocusedKey = adapter.keyAt(position);
+        if (hideGridUnderDock) adapter.setGridAway(!reordering && dockRow && !singleRow && position < COLUMNS, grid);
         // Focus restored before the first layout (cold start): the tile has no size yet, and the glass
         // would be sized to 2*pad. Run again once the tile is laid out.
         if (card.getWidth() == 0) {
@@ -1931,7 +1942,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         float w = card.getWidth() * scale + 2 * pad;
         float h = card.getHeight() * scale + 2 * pad;
         float x = r.exactCenterX() - w / 2f;
-        float y = r.exactCenterY() - h / 2f - (advancedEffects ? 4f * density : 0f);
+        float y = r.exactCenterY() - h / 2f
+                - glassLiftPx(advancedEffects, dockRow && (singleRow || position < COLUMNS), density);
 
         ViewGroup.LayoutParams lp = glass.getLayoutParams();
         if (lp.width != (int) w || lp.height != (int) h || card.getWidth() != glassCardW) {
