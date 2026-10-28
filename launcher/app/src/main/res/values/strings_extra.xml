@@ -133,4 +133,9 @@
     <string name="new_year_title_long_xmas">TIME LEFT TILL CHRISTMAS</string>
     <string name="new_year_title_soon_xmas">CHRISTMAS IS COMING!</string>
     <string name="new_year_happy_xmas">Merry Christmas!</string>
+    <string name="xs_section_look">Look</string>
+    <string name="xs_preset">Theme</string>
+    <string name="xs_preset_theme">As in the theme</string>
+    <string name="xs_preset_claude">Claude</string>
+    <string name="xs_preset_hint">Claude: warm charcoal and clay, its own drawn wallpaper, glass with a rim, dark pills under the widgets. Made by Claude Code with the owner of this TV, 28 October 2026. Switching back restores exactly what was set before.</string>
 </resources>

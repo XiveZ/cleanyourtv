@@ -697,6 +697,17 @@ final class Config {
             wallpaper = chosen.isEmpty() ? null : chosen.get(0);
             wallpaperEnabled = !chosen.isEmpty();
         }
+        // Local: a preset's own wallpaper (files/presets/, e.g. the Claude preset's) wins over the theme's.
+        String presetWall = json == null ? "" : string(json, "preset_wallpaper", "");
+        if (presetWall.matches("[A-Za-z0-9._-]{1,64}")) {
+            File own = new File(new File(ctx.getFilesDir(), "presets"), presetWall);
+            if (own.isFile() && own.length() > 0) {
+                wallpapers.clear();
+                wallpapers.add(own);
+                wallpaper = own;
+                wallpaperEnabled = true;
+            }
+        }
         // A festive skin comes only from a theme; config.xml has no festival.
         Festival festival = json == null ? Festival.NONE : Festival.parse(string(json, "festival", ""),
                 string(json, "festival_until", ""), string(json, "greeting", ""), string(json, "accent_color", ""));
@@ -745,6 +756,13 @@ final class Config {
         } catch (JSONException e) {
             return new JSONObject();
         }
+    }
+
+    /** Replaces all on-TV choices at once (a preset switched on or off) and moves the change count. */
+    static void putTvOverrides(Context ctx, JSONObject all) {
+        SharedPreferences choices = ctx.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE);
+        choices.edit().putString(TV_OVERRIDES_KEY, all.toString())
+                .putLong(SETTINGS_REVISION_KEY, choices.getLong(SETTINGS_REVISION_KEY, 0) + 1).apply();
     }
 
     /** Saves one on-TV choice (null removes it) and moves the change count, so Home rebuilds with it. */

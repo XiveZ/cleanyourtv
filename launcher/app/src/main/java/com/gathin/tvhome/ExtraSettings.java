@@ -32,6 +32,19 @@ final class ExtraSettings {
 
     void build() {
         Config c = config;
+        section(R.string.xs_section_look);
+        android.content.SharedPreferences prefs = activity.getSharedPreferences(Config.SETTINGS_NAME, Activity.MODE_PRIVATE);
+        option("preset", R.string.xs_preset, Preset.active(Config.tvOverrides(prefs)), new Object[]{"", "claude"},
+                v -> text("claude".equals(v) ? R.string.xs_preset_claude : R.string.xs_preset_theme), (key, value) -> {
+                    org.json.JSONObject now = Config.tvOverrides(prefs);
+                    try {
+                        if ("claude".equals(value) && !ClaudeWallpaper.ensure(activity)) return;
+                        Config.putTvOverrides(activity, "".equals(value) ? Preset.restore(now) : Preset.apply(now, (String) value));
+                    } catch (org.json.JSONException ignored) {
+                        // the choices stay as they were
+                    }
+                });
+        hint(R.string.xs_preset_hint);
         section(R.string.xs_section_wallpaper);
         option("wallpaper_rotation_minutes", R.string.xs_wallpaper_every, c.wallpaperRotationMinutes,
                 new Object[]{0, 5, 15, 30, 60, 120, 180, 360, 720, 1440}, this::minutes);

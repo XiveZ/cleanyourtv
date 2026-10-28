@@ -284,4 +284,9 @@
     <string name="new_year_title_long_xmas">ДА КАЛЯДАЎ ЗАСТАЛОСЯ</string>
     <string name="new_year_title_soon_xmas">ХУТКА КАЛЯДЫ!</string>
     <string name="new_year_happy_xmas">Вясёлых Калядаў!</string>
+    <string name="xs_section_look">Выгляд</string>
+    <string name="xs_preset">Тэма</string>
+    <string name="xs_preset_theme">Як у тэме</string>
+    <string name="xs_preset_claude">Claude</string>
+    <string name="xs_preset_hint">Claude: цёплы вугальны колер і гліна, уласныя намаляваныя шпалеры, шкло з абводкай, цёмныя падкладкі пад віджэтамі. Зроблена Claude Code разам з уладальнікам гэтага тэлевізара 28 кастрычніка 2026. Пры вяртанні аднаўляецца дакладна тое, што было зададзена раней.</string>
 </resources>
