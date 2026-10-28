@@ -81,6 +81,7 @@ final class ExtraSettings {
                 v -> text((Boolean) v ? R.string.xs_date_below : R.string.xs_date_beside));
         bool("show_network_pill", R.string.xs_network_pill, c.showNetworkPill);
         bool("show_inputs_pill", R.string.xs_inputs_pill, c.showInputsPill);
+        bool("show_astro", R.string.xs_astro, c.showAstro);
         bool("show_stats", R.string.xs_stats, c.showStats);
         option("stats_refresh_seconds", R.string.xs_stats_every, c.statsRefreshSeconds,
                 new Object[]{2, 5, 10, 30, 60}, this::seconds);

@@ -532,6 +532,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         btnWifi = findViewById(R.id.btnWifi);
         shamsiDate = findViewById(R.id.shamsiDate);
         stats = findViewById(R.id.stats);
+        astro = findViewById(R.id.astro);
+        astroLine = new AstroLine(getResources());
+        if (cfg.showAstro && astroLine.placed()) astro.setVisibility(View.VISIBLE);
         raceCalendar = cfg.raceCalendar;
         racePanel = findViewById(R.id.racePanel);
         raceKicker = findViewById(R.id.raceKicker);
@@ -2648,7 +2651,25 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     }
 
+    /** Local: the sky for config.xml's place (show_astro lines, and the Belarusian greeting by the sun). */
+    private AstroLine astroLine;
+    private TextView astro;
+
+    /** Belarusian: the greeting follows the sun at the TV's place (Greeting), never "good night". */
+    private int sunGreeting() {
+        int[] sun = astroLine.sun();
+        if (sun == null) sun = new int[]{WallpaperMood.DEFAULT_SUNRISE, WallpaperMood.DEFAULT_SUNSET};
+        Calendar now = Calendar.getInstance();
+        switch (Greeting.part(now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE), sun[0], sun[1])) {
+            case MORNING: return R.string.good_morning;
+            case DAY: return R.string.good_afternoon;
+            case EVENING: return R.string.good_evening;
+            default: return R.string.greeting_hello;
+        }
+    }
+
     private void updateGreeting() {
+        if (astro.getVisibility() == View.VISIBLE) astro.setText(astroLine.text(getResources()));
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int res;
         // Locale-specific day parts (app language on Android 13+).
@@ -2659,7 +2680,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         Locale locale = getResources().getConfiguration().getLocales().get(0);
         String lang = locale.getLanguage();
         String country = locale.getCountry();
-        if ("in".equals(lang) || "id".equals(lang)) {
+        if ("be".equals(lang)) {
+            res = sunGreeting();
+        } else if ("in".equals(lang) || "id".equals(lang)) {
             if (hour < 10) res = R.string.good_morning;
             else if (hour < 15) res = R.string.good_afternoon;
             else if (hour < 18) res = R.string.good_evening;

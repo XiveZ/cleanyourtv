@@ -76,6 +76,8 @@ final class Config {
     int statsRefreshSeconds = 10;
     /** hide_grid_under_dock: the rows under the dock stay out of sight while focus is on the dock (Android's drawer). */
     boolean hideGridUnderDock;
+    /** show_astro: sunrise, sunset, the moon and meteor showers under the clock (Astro). */
+    boolean showAstro;
 
     final List<String> dockApps;
     /** Grid apps fill the dock slots dock_apps leaves free (config.xml, fill_dock); on by default, false leaves the slots empty. */
@@ -716,6 +718,7 @@ final class Config {
             config.nameSpacing = integer(json, "name_spacing", 2, 0, 20);
             config.statsRefreshSeconds = integer(json, "stats_refresh_seconds", 10, 2, 300);
             config.hideGridUnderDock = bool(json, "hide_grid_under_dock", false);
+            config.showAstro = bool(json, "show_astro", false);
         }
         return config;
     }
