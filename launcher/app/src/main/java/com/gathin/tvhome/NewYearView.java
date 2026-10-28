@@ -38,6 +38,8 @@ final class NewYearView extends View {
     private final float[] sx = new float[FLAKES], sy = new float[FLAKES], phase = new float[FLAKES];
     private final int[] lights = {0xFFFF5A5A, 0xFFFFD54F, 0xFF64B5F6, 0xFFBA68C8, 0xFFFF8A65, 0xFF81C784};
     private Shader treeShade, starGlow;
+    /** False while another app (or a panel over Home) is in front: nothing is scheduled then. */
+    private boolean running = true;
 
     NewYearView(Context ctx, boolean animate, String style, String target, String text) {
         super(ctx);
@@ -66,6 +68,12 @@ final class NewYearView extends View {
         setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
+    /** Home calls this from onResume (true) and onPause (false). */
+    void setRunning(boolean on) {
+        running = on;
+        if (on) invalidate();
+    }
+
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         setMeasuredDimension(Math.round(380 * d), Math.round(100 * d));
@@ -92,7 +100,7 @@ final class NewYearView extends View {
             String days = getResources().getQuantityString(R.plurals.new_year_days, (int) l.days, (int) l.days);
             c.drawText(days + "  " + l.clock, x, 74 * d, timer);
         }
-        if (!isShown()) return;
+        if (!running || !isShown()) return;
         if (animate) postInvalidateDelayed(100);   // 10 frames a second: enough to twinkle, little CPU
         else postInvalidateDelayed(1000 - System.currentTimeMillis() % 1000);   // on the second
     }

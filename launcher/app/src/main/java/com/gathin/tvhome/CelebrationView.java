@@ -43,6 +43,14 @@ final class CelebrationView extends View {
     private double skip;
     private float lastBurst = -10;
     private int nextConfetti;
+    /** False while another app (or a panel over Home) is in front: no frames are drawn then. */
+    private boolean running = true;
+
+    /** Home calls this from onResume (true) and onPause (false); the scenes follow the clock, so they catch up. */
+    void setRunning(boolean on) {
+        running = on;
+        if (on) invalidate();
+    }
 
     /** @param offset seconds already passed (Home opened during the celebration); {@code done} runs at the end. */
     CelebrationView(Context ctx, String greeting, double offset, Done done) {
@@ -98,7 +106,7 @@ final class CelebrationView extends View {
         title(c, w, h, s);
         for (int i = 0; i < Celebration.FIGURES; i++) figure(c, i, s, w, h);
         c.restoreToCount(saved);
-        postInvalidateDelayed(33);
+        if (running) postInvalidateDelayed(33);
     }
 
     private void title(Canvas c, float w, float h, double s) {

@@ -540,8 +540,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         headerWidgets.put("stats", stats);
         celebrate = cfg.showNewYear;
         celebrationTarget = cfg.newYearTarget;
-        if (cfg.showNewYear) headerWidgets.put("newyear", new NewYearView(this, cfg.animations && !cfg.reducedMotion,
-                cfg.newYearStyle, cfg.newYearTarget, cfg.newYearText));
+        if (cfg.showNewYear) {
+            newYearView = new NewYearView(this, cfg.animations && !cfg.reducedMotion,
+                    cfg.newYearStyle, cfg.newYearTarget, cfg.newYearText);
+            headerWidgets.put("newyear", newYearView);
+        }
         HeaderWidgets.arrange(findViewById(R.id.widgetsLeft), findViewById(R.id.widgetsRight), headerWidgets, cfg);
         raceCalendar = cfg.raceCalendar;
         racePanel = findViewById(R.id.racePanel);
@@ -1035,6 +1038,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         restartIdleClock();
         dockVisibility.onResume();
+        setFestiveRunning(true);
         // A new set from the New wallpapers add-on: copied in the background, then Home rebuilds with it.
         WallpaperImport.syncAsync(this, () -> runOnUiThread(() -> {
             if (resumed && !isFinishing()) recreate();
@@ -1253,6 +1257,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         resumed = false;
         root.removeCallbacks(showIdleClock);
         dockVisibility.onPause();
+        setFestiveRunning(false);
         endReorder();   // Home or another app while reordering keeps the order so far
         wallpaperPlayer.stop();
         stopAmbientAnimation();
@@ -2666,6 +2671,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean celebrate;
     private String celebrationTarget = "new_year";
     private CelebrationView celebration;
+    private NewYearView newYearView;
+
+    /** The New Year widget and the celebration move only while Home itself is in front. */
+    private void setFestiveRunning(boolean on) {
+        if (newYearView != null) newYearView.setRunning(on);
+        if (celebration != null) celebration.setRunning(on);
+    }
 
     private void maybeCelebrate() {
         if (!celebrate || celebration != null) return;
